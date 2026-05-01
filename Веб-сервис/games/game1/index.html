@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Замок Волшебника: Составь Слова</title>
+    <link rel="stylesheet" href="style.css">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div class="novel-overlay" id="novel-overlay">
+        <div class="novel-text">
+            <h2>📜 День рождения звуковичков 📜</h2>
+            <p>Однажды у звуковичков был день рождения. Но злой волшебник звукомор испортил им праздник!</p>
+            <p>Он прогрыз в торте, каше и супе дырки! Помоги звуковичкам вернуть гласные буквы и покрась их в цвет, который звукомор сильно боится!</p>
+            <p>Тебе следует:</p>
+            <ol>
+                <li>Перетащить правильные буквы в пустые места (_).</li>
+                <li>Нажать **"Проверить"**.</li>
+                <li>Если слово собрано верно, используй волшебную **Кисть**, чтобы покрасить гласные в красный цвет.</li>
+            </ol>
+            <p>У тебя есть только **3 попытки** для каждого слова. Начнём!</p>
+            <button id="novel-btn">Начать испытание</button>
+        </div>
+    </div>
+
+    <div class="game-container">
+
+        <h1>Составь Слово</h1>
+        
+        <div class="words-container">
+            </div>
+
+        <div class="letters-container" id="letters-container">
+            </div>
+        
+        <div class="paint-area">
+            <p>Наполни гласные магической силой (Перетащи кисть на красную букву):</p>
+            <div class="color-palette">
+                <div class="color" id="red-paint" draggable="true">
+                    🔴
+                </div>
+            </div>
+        </div>
+
+        <div id="result"></div>
+
+        <div class="controls">
+            <button id="check-btn">Проверить</button>
+            <button id="reset-btn">Сбросить</button>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+</body>
+</html>

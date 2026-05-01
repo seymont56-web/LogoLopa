@@ -1,0 +1,643 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Домики: Перетащи буквы</title>
+<style>
+  body{
+    margin:0; height:100vh; background:#f6f7fb;
+    font-family:system-ui,Arial,sans-serif;
+    display:flex; align-items:center; justify-content:center;
+  }
+
+  .panel{
+    width:min(980px, 94vw);
+    background:#fff;
+    border-radius:18px;
+    box-shadow:0 10px 30px rgba(0,0,0,.10);
+    padding:22px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:14px;
+  }
+
+  .titleRow{
+    width:100%;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    flex-wrap:wrap;
+  }
+
+  .title{
+    font-weight:900;
+    font-size:20px;
+  }
+
+  .score{
+    font-size:18px;
+    font-weight:900;
+    background:#f2f3f6;
+    padding:10px 14px;
+    border-radius:999px;
+  }
+
+  .stats{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    justify-content:center;
+  }
+
+  .stat{
+    font-size:16px;
+    font-weight:800;
+    background:#f2f3f6;
+    padding:8px 12px;
+    border-radius:999px;
+  }
+
+  .feedback{
+    min-height:28px;
+    font-size:18px;
+    font-weight:900;
+    text-align:center;
+  }
+
+  .good{ color:#16a34a; }
+  .bad{ color:#dc2626; }
+
+  .houses{
+    width:100%;
+    display:flex;
+    gap:14px;
+    justify-content:space-between;
+    align-items:stretch;
+    flex-wrap:nowrap;
+  }
+
+  .house{
+    position:relative;
+    flex:1 1 0;
+    min-width:120px;
+    background:#f7f8ff;
+    border:2px solid #e7e9ff;
+    border-radius:16px;
+    padding:18px 12px 12px;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    overflow: visible;
+  }
+
+  .house::before{
+    content:"";
+    position:absolute;
+    left:50%;
+    top:-22px;
+    transform:translateX(-50%);
+    width:0; height:0;
+    border-left:54px solid transparent;
+    border-right:54px solid transparent;
+    border-bottom:34px solid #dc2626;
+    filter: drop-shadow(0 6px 10px rgba(220,38,38,.18));
+  }
+
+  .floor{
+    height:86px;
+    border-radius:14px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:42px;
+    font-weight:900;
+    user-select:none;
+  }
+
+  .topFloor{
+    background:#ffffff;
+    border:2px dashed #cfd6ff;
+    position:relative;
+  }
+
+  .topFloor.drop-ok { border-color:#16a34a; background:#ecfdf3; }
+  .topFloor.drop-bad{ border-color:#dc2626; background:#fff1f2; }
+
+  .bottomFloor{
+    background:#eef0ff;
+    border:2px solid #e0e3ff;
+  }
+
+  .tray{
+    width:100%;
+    background:#f2f3f6;
+    border-radius:16px;
+    padding:14px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:12px;
+    flex-wrap:wrap;
+    min-height:92px;
+  }
+
+  .card{
+    width:74px;
+    height:74px;
+    border-radius:16px;
+    background:#fff;
+    border:2px solid #e6e8ef;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:40px;
+    font-weight:900;
+    user-select:none;
+    touch-action:none;
+    cursor:grab;
+    box-shadow:0 8px 16px rgba(0,0,0,.06);
+  }
+
+  .card:active{ cursor:grabbing; transform:scale(.99); }
+
+  .card.locked{
+    cursor:default;
+    opacity:0.95;
+    border-color:#16a34a;
+  }
+
+  .card.disabled{
+    pointer-events:none;
+  }
+
+  .restartBtn{
+    display:none;
+    cursor:pointer;
+    border:0;
+    border-radius:14px;
+    padding:12px 18px;
+    font-size:18px;
+    font-weight:900;
+    background:#2563eb;
+    color:#fff;
+  }
+
+  .overlay{
+    position:fixed;
+    inset:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background: rgba(0,0,0,.65);
+    backdrop-filter: blur(1px);
+    cursor:pointer;
+    z-index: 999;
+  }
+
+  .startBtn{
+    cursor:pointer;
+    border:0;
+    border-radius:18px;
+    padding:18px 30px;
+    font-size:30px;
+    font-weight:900;
+    background:#16a34a;
+    color:#fff;
+    box-shadow:0 16px 30px rgba(22,163,74,.25);
+  }
+
+  .startBtn:active{ transform:scale(.99); }
+  .hidden{ display:none; }
+
+  @media (max-width:820px){
+    .houses{ flex-wrap:wrap; }
+    .house{ min-width:140px; flex:1 1 calc(50% - 14px); }
+    .house::before{
+      border-left:50px solid transparent;
+      border-right:50px solid transparent;
+      border-bottom:32px solid #dc2626;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="panel">
+  <div class="titleRow">
+    <div class="title">Перетащи буквы на 2 этаж</div>
+    <div class="score">Правильно: <span id="score">0</span>/5</div>
+  </div>
+
+  <div class="stats">
+    <div class="stat">Правильные ответы: <span id="correctCount">0</span></div>
+    <div class="stat">Ошибки: <span id="incorrectCount">0</span></div>
+  </div>
+
+  <div class="feedback" id="feedback"></div>
+
+  <div class="houses" id="houses"></div>
+
+  <div class="tray" id="tray" aria-label="Карточки с буквами"></div>
+
+  <button class="restartBtn" id="restartBtn" type="button">Начать заново</button>
+</div>
+
+<div class="overlay" id="overlay" aria-label="Экран старта">
+  <button class="startBtn" id="startBtn" type="button">НАЧАТЬ</button>
+</div>
+
+<script>
+  const GAME_ID = 4;
+
+  const HOUSES = ["А","О","У","Э","Ы"];
+  const CARDS  = ["Я","Ё","Ю","Е","И"];
+
+  const MAP = {
+    "А":"Я",
+    "О":"Ё",
+    "У":"Ю",
+    "Э":"Е",
+    "Ы":"И"
+  };
+
+  const housesEl = document.getElementById("houses");
+  const trayEl = document.getElementById("tray");
+  const scoreEl = document.getElementById("score");
+  const correctCountEl = document.getElementById("correctCount");
+  const incorrectCountEl = document.getElementById("incorrectCount");
+  const feedbackEl = document.getElementById("feedback");
+
+  const overlay = document.getElementById("overlay");
+  const startBtn = document.getElementById("startBtn");
+  const restartBtn = document.getElementById("restartBtn");
+
+  let started = false;
+  let finished = false;
+
+  let score = 0;
+  let correctAnswers = 0;
+  let incorrectAnswers = 0;
+  let startTime = null;
+  let resultSaved = false;
+
+  let dragging = null;
+
+  function setFeedback(text, ok = null){
+    feedbackEl.textContent = text;
+    feedbackEl.className = "feedback" + (ok === null ? "" : (" " + (ok ? "good" : "bad")));
+  }
+
+  function beep(ok){
+    try{
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+
+      o.frequency.value = ok ? 900 : 220;
+      g.gain.value = 0.05;
+
+      o.connect(g);
+      g.connect(ctx.destination);
+
+      o.start();
+
+      setTimeout(() => {
+        o.stop();
+        ctx.close();
+      }, 120);
+    }catch{}
+  }
+
+  function updateScore(){
+    scoreEl.textContent = score;
+    correctCountEl.textContent = correctAnswers;
+    incorrectCountEl.textContent = incorrectAnswers;
+  }
+
+  function buildHouses(){
+    housesEl.innerHTML = "";
+
+    for (const base of HOUSES){
+      const house = document.createElement("div");
+      house.className = "house";
+
+      const top = document.createElement("div");
+      top.className = "floor topFloor";
+      top.dataset.base = base;
+      top.dataset.expected = MAP[base];
+      top.textContent = "";
+
+      const bottom = document.createElement("div");
+      bottom.className = "floor bottomFloor";
+      bottom.textContent = base;
+
+      house.appendChild(top);
+      house.appendChild(bottom);
+      housesEl.appendChild(house);
+    }
+  }
+
+  function buildCards(){
+    trayEl.innerHTML = "";
+
+    for (const ch of CARDS){
+      const card = document.createElement("div");
+
+      card.className = "card";
+      card.textContent = ch;
+      card.dataset.letter = ch;
+
+      card.addEventListener("pointerdown", onPointerDown);
+
+      trayEl.appendChild(card);
+    }
+  }
+
+  function clearDropHints(){
+    document.querySelectorAll(".topFloor.drop-ok, .topFloor.drop-bad").forEach(item => {
+      item.classList.remove("drop-ok", "drop-bad");
+    });
+  }
+
+  function onPointerDown(e){
+    if (!started || finished) return;
+
+    const cardEl = e.currentTarget;
+
+    if (cardEl.classList.contains("locked")) return;
+
+    cardEl.setPointerCapture(e.pointerId);
+
+    const rect = cardEl.getBoundingClientRect();
+    const offsetX = e.clientX - rect.left;
+    const offsetY = e.clientY - rect.top;
+
+    const homeParent = cardEl.parentElement;
+    const homeNextSibling = cardEl.nextSibling;
+
+    dragging = {
+      cardEl,
+      letter: cardEl.dataset.letter,
+      offsetX,
+      offsetY,
+      homeParent,
+      homeNextSibling
+    };
+
+    cardEl.style.pointerEvents = "none";
+
+    cardEl.style.position = "fixed";
+    cardEl.style.left = (e.clientX - offsetX) + "px";
+    cardEl.style.top  = (e.clientY - offsetY) + "px";
+    cardEl.style.zIndex = "1000";
+
+    setFeedback("", null);
+
+    window.addEventListener("pointermove", onPointerMove);
+    window.addEventListener("pointerup", onPointerUp, { once:true });
+  }
+
+  function onPointerMove(e){
+    if (!dragging) return;
+
+    const { cardEl, offsetX, offsetY } = dragging;
+
+    cardEl.style.left = (e.clientX - offsetX) + "px";
+    cardEl.style.top  = (e.clientY - offsetY) + "px";
+
+    clearDropHints();
+
+    const el = document.elementFromPoint(e.clientX, e.clientY);
+    const target = el && el.closest ? el.closest(".topFloor") : null;
+
+    if (target) {
+      const ok = (target.dataset.expected === dragging.letter) && target.children.length === 0;
+      target.classList.add(ok ? "drop-ok" : "drop-bad");
+    }
+  }
+
+  function returnToHome(){
+    const { cardEl, homeParent, homeNextSibling } = dragging;
+
+    cardEl.style.position = "";
+    cardEl.style.left = "";
+    cardEl.style.top = "";
+    cardEl.style.zIndex = "";
+    cardEl.style.pointerEvents = "";
+
+    if (homeNextSibling) {
+      homeParent.insertBefore(cardEl, homeNextSibling);
+    } else {
+      homeParent.appendChild(cardEl);
+    }
+  }
+
+  function lockInto(targetFloor){
+    const { cardEl } = dragging;
+
+    cardEl.style.position = "";
+    cardEl.style.left = "";
+    cardEl.style.top = "";
+    cardEl.style.zIndex = "";
+    cardEl.style.pointerEvents = "";
+
+    cardEl.classList.add("locked");
+
+    targetFloor.textContent = "";
+    targetFloor.appendChild(cardEl);
+  }
+
+  function onPointerUp(e){
+    window.removeEventListener("pointermove", onPointerMove);
+
+    clearDropHints();
+
+    if (!dragging) return;
+
+    const el = document.elementFromPoint(e.clientX, e.clientY);
+    const target = el && el.closest ? el.closest(".topFloor") : null;
+
+    if (!target) {
+      returnToHome();
+      dragging = null;
+      return;
+    }
+
+    if (target.children.length > 0) {
+      incorrectAnswers++;
+      updateScore();
+
+      setFeedback("Тут уже занято", false);
+      beep(false);
+
+      returnToHome();
+      dragging = null;
+      return;
+    }
+
+    const expected = target.dataset.expected;
+    const ok = expected === dragging.letter;
+
+    if (ok) {
+      lockInto(target);
+
+      score++;
+      correctAnswers++;
+
+      updateScore();
+
+      setFeedback("Верно!", true);
+      beep(true);
+
+      if (score === HOUSES.length) {
+        finishGame();
+      }
+    } else {
+      incorrectAnswers++;
+      updateScore();
+
+      setFeedback("Ошибка", false);
+      beep(false);
+
+      returnToHome();
+    }
+
+    dragging = null;
+  }
+
+  function startGame(){
+    if (started) return;
+
+    started = true;
+    finished = false;
+    resultSaved = false;
+
+    score = 0;
+    correctAnswers = 0;
+    incorrectAnswers = 0;
+    startTime = Date.now();
+
+    buildHouses();
+    buildCards();
+    updateScore();
+
+    restartBtn.style.display = "none";
+    overlay.classList.add("hidden");
+
+    setFeedback("Перетаскивай карточки на 2 этаж.", null);
+  }
+
+  async function finishGame(){
+    if (finished) {
+      return;
+    }
+
+    finished = true;
+    started = false;
+
+    document.querySelectorAll(".card").forEach(card => {
+      card.classList.add("disabled");
+    });
+
+    const timeSpent = getTimeSpent();
+
+    setFeedback("Отлично! Всё правильно. Сохраняем результат...", true);
+    beep(true);
+
+    restartBtn.style.display = "inline-block";
+
+    await saveGameResult(timeSpent);
+  }
+
+  function getTimeSpent(){
+    if (!startTime) {
+      return 0;
+    }
+
+    return Math.floor((Date.now() - startTime) / 1000);
+  }
+
+  async function saveGameResult(timeSpent){
+    if (resultSaved) {
+      return;
+    }
+
+    resultSaved = true;
+
+    try {
+      const response = await fetch('../../save_result.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'same-origin',
+        body: JSON.stringify({
+          game_id: GAME_ID,
+          correct_answers: correctAnswers,
+          incorrect_answers: incorrectAnswers,
+          time_spent: timeSpent
+        })
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setFeedback(
+          `Результат сохранён. Правильно: ${correctAnswers}, ошибок: ${incorrectAnswers}, время: ${timeSpent} сек.`,
+          true
+        );
+      } else {
+        setFeedback(
+          `Игра завершена, но результат не сохранён: ${data.message}`,
+          false
+        );
+      }
+    } catch (error) {
+      setFeedback(
+        "Игра завершена, но произошла ошибка при сохранении результата.",
+        false
+      );
+    }
+  }
+
+  function restartGame(){
+    started = false;
+    finished = false;
+    resultSaved = false;
+
+    score = 0;
+    correctAnswers = 0;
+    incorrectAnswers = 0;
+    startTime = null;
+    dragging = null;
+
+    buildHouses();
+    buildCards();
+    updateScore();
+
+    restartBtn.style.display = "none";
+    overlay.classList.remove("hidden");
+
+    setFeedback("", null);
+  }
+
+  startBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    startGame();
+  });
+
+  overlay.addEventListener("click", () => startGame());
+
+  restartBtn.addEventListener("click", restartGame);
+
+  buildHouses();
+  buildCards();
+  updateScore();
+  setFeedback("", null);
+</script>
+
+</body>
+</html>

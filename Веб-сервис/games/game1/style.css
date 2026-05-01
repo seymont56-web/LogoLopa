@@ -1,0 +1,413 @@
+/*
+ * style.css
+ * Полный код CSS для игры "Составь слова"
+ */
+
+/* ОБЩИЕ СТИЛИ */
+body {
+    font-family: 'Roboto', sans-serif;
+    /* Основной шрифт */
+    /* Замените ссылку ниже на свою картинку замка! */
+    background: url('https://i.imgur.com/your-castle-background.jpg') no-repeat center center fixed;
+    background-size: cover;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    color: #333;
+    overflow: hidden;
+}
+
+.game-container {
+    background: rgba(255, 255, 255, 0.95);
+    /* Полупрозрачный белый фон */
+    padding: 25px 35px;
+    /* Уменьшенные отступы */
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    /* Более выраженная тень */
+    width: 90%;
+    max-width: 600px;
+    /* Уменьшенная максимальная ширина */
+    text-align: center;
+    border: 5px solid #a87f4c;
+    /* Красивая рамка */
+    position: relative;
+    z-index: 1;
+    animation: fadeIn 1s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* СТИЛИ НОВЕЛЛЫ (ВСТУПЛЕНИЯ) */
+.novel-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.85);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+}
+
+.novel-text {
+    background: linear-gradient(145deg, #f0e68c, #e9d8a6);
+    /* Золотистый градиент */
+    padding: 40px;
+    border-radius: 15px;
+    max-width: 600px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+    border: 3px solid #b8860b;
+    color: #5a4a35;
+}
+
+.novel-text p {
+    font-size: 1.2em;
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
+
+.novel-text p i {
+    color: #7a6b5a;
+}
+
+.novel-text p b {
+    font-family: 'Press Start 2P', cursive;
+    /* Игровой шрифт для акцента */
+    color: #8b4513;
+}
+
+#novel-btn {
+    margin-top: 30px;
+    padding: 15px 30px;
+    background: linear-gradient(180deg, #4CAF50, #388E3C);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1.1em;
+    font-weight: bold;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+#novel-btn:hover {
+    background: linear-gradient(180deg, #45a049, #307a34);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+}
+
+/* СТИЛИ СЛОВ (ИГРОВОЕ ПОЛЕ) */
+.words-container {
+    margin: 25px 0;
+    display: flex;
+    justify-content: space-evenly;
+    /* Центрирование слов с равным промежутком */
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.word {
+    background: linear-gradient(145deg, #f0f0f0, #e0e0e0);
+    padding: 10px 15px;
+    /* Уменьшенные внутренние отступы */
+    border-radius: 10px;
+    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1), 0 3px 8px rgba(0, 0, 0, 0.15);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-width: unset;
+    border: 2px solid #bbb;
+}
+
+.char {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 1.8em;
+    /* Уменьшенный размер шрифта */
+    margin: 0 3px;
+    padding: 0 2px;
+    min-width: 25px;
+    text-align: center;
+    user-select: none;
+    transition: color 0.3s ease;
+}
+
+.static {
+    /* Согласные буквы */
+    color: #222;
+}
+
+.placeholder {
+    /* Пропуск для гласной */
+    border-bottom: 3px dashed #666;
+    color: #666;
+    cursor: grab;
+}
+
+.placeholder.drag-over {
+    /* Подсветка для Drop */
+    background-color: rgba(173, 216, 230, 0.5);
+    border-radius: 5px;
+}
+
+.filled {
+    /* Заполненная гласная */
+    font-weight: bold;
+    cursor: grab;
+    border-bottom: none;
+    color: #222;
+}
+
+.red-vowel {
+    /* Покрашенная гласная */
+    color: red !important;
+    text-shadow: 0 0 8px rgba(255, 0, 0, 0.6);
+}
+
+/* СТИЛИ БУКВ В КОРЗИНЕ */
+.letters-container {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin: 20px 0;
+    background: linear-gradient(45deg, #cee0e8, #c1d2da);
+    /* Фон для корзины букв */
+    padding: 15px;
+    border-radius: 15px;
+    box-shadow: inset 0 3px 10px rgba(0, 0, 0, 0.1), 0 5px 15px rgba(0, 0, 0, 0.2);
+    border: 2px solid #a7c2d1;
+}
+
+.letter {
+    width: 55px;
+    height: 55px;
+    margin: 8px;
+    background: linear-gradient(180deg, #6fd26f, #4CAF50);
+    color: white;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 2em;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    cursor: grab;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2), inset 0 2px 5px rgba(255, 255, 255, 0.3);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.letter:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3), inset 0 2px 5px rgba(255, 255, 255, 0.5);
+}
+
+.letter:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    cursor: grabbing;
+}
+
+/* СТИЛИ ОБЛАСТИ ПОКРАСКИ */
+.paint-area {
+    margin-top: 25px;
+    padding: 15px;
+    background: linear-gradient(135deg, #ffe0b3, #ffd78c);
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15), inset 0 2px 5px rgba(255, 255, 255, 0.4);
+    border: 2px solid #e6b85c;
+}
+
+.paint-area p {
+    font-size: 1.1em;
+    margin-bottom: 15px;
+    color: #6a4a2a;
+    font-weight: bold;
+}
+
+.color-palette {
+    display: flex;
+    justify-content: center;
+    margin-top: 15px;
+}
+
+.color {
+    /* Кружок для покраски */
+    width: 60px;
+    height: 60px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 3em;
+    background-color: transparent;
+    border-radius: 50%;
+    cursor: grab;
+    transition: transform 0.2s;
+}
+
+.color:hover {
+    transform: scale(1.1);
+}
+
+.color:active {
+    transform: scale(0.95);
+    cursor: grabbing;
+}
+
+
+/* СТИЛИ РЕЗУЛЬТАТА И КНОПКИ СБРОСА */
+#result {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 1.3em;
+    /* Слегка уменьшен */
+    margin-top: 20px;
+    min-height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+    border-radius: 8px;
+}
+
+#reset-btn {
+    margin-top: 20px;
+    padding: 12px 25px;
+    background: linear-gradient(180deg, #FF6347, #E44D26);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1em;
+    font-weight: bold;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+#reset-btn:hover {
+    background: linear-gradient(180deg, #e44d26, #c53a1a);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+}
+
+/* Медиа-запросы для адаптивности */
+@media (max-width: 650px) {
+    .game-container {
+        width: 95%;
+        padding: 15px;
+    }
+
+    .words-container {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .word {
+        width: 90%;
+        max-width: 280px;
+    }
+
+    .char {
+        font-size: 1.5em;
+        min-width: 20px;
+    }
+
+    .letters-container {
+        padding: 10px;
+    }
+
+    .letter {
+        width: 45px;
+        height: 45px;
+        font-size: 1.8em;
+        margin: 6px;
+    }
+
+    .novel-text {
+        padding: 20px;
+        max-width: 95%;
+    }
+}
+
+/* Добавьте в конец style.css */
+
+.controls {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    /* Расстояние между кнопками */
+}
+
+#check-btn {
+    padding: 12px 25px;
+    background: linear-gradient(180deg, #5DADE2, #3498DB);
+    /* Синий градиент */
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1em;
+    font-weight: bold;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+#check-btn:hover:not([disabled]) {
+    background: linear-gradient(180deg, #3498DB, #2980B9);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+}
+
+#check-btn[disabled] {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Стили для визуальной ошибки */
+.char.error {
+    border: 3px solid red;
+    background-color: rgba(255, 0, 0, 0.2);
+    animation: shake 0.5s;
+}
+
+@keyframes shake {
+    0% {
+        transform: translateX(0);
+    }
+
+    25% {
+        transform: translateX(-5px);
+    }
+
+    50% {
+        transform: translateX(5px);
+    }
+
+    75% {
+        transform: translateX(-5px);
+    }
+
+    100% {
+        transform: translateX(0);
+    }
+}
+
+/* Убедитесь, что .color (краска) отображается как flex, чтобы скрыть/показать ее */
+.color {
+    /* ... остальные стили ... */
+    display: flex;
+    /* Важно! */
+}

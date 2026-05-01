@@ -1,0 +1,429 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Гласная — нажми</title>
+<style>
+  body{
+    margin:0;height:100vh;background:#f6f7fb;
+    font-family:system-ui,Arial,sans-serif;
+    display:flex;align-items:center;justify-content:center;
+  }
+
+  .panel{
+    width:min(860px,92vw);
+    background:#fff;border-radius:18px;
+    box-shadow:0 10px 30px rgba(0,0,0,.10);
+    padding:26px;
+    display:flex;flex-direction:column;
+    align-items:center;gap:14px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .letter{
+    font-size:160px;font-weight:900;line-height:1;
+    user-select:none;
+  }
+
+  .feedback{
+    min-height:34px;
+    font-size:28px;font-weight:900;
+    text-align:center;
+  }
+
+  .good{color:#16a34a}
+  .bad{color:#dc2626}
+
+  .btnLabel{
+    font-size:22px;
+    font-weight:900;
+    text-align:center;
+    user-select:none;
+    margin-top: 6px;
+  }
+
+  .red-btn{
+    width:140px;
+    height:140px;
+    border-radius:999px;
+    background:#dc2626;
+    border:none;
+    cursor:pointer;
+    box-shadow:0 14px 28px rgba(220,38,38,.25);
+  }
+
+  .red-btn:active{transform:scale(.98)}
+
+  .red-btn:disabled{
+    opacity:.45;
+    cursor:not-allowed;
+  }
+
+  .score{
+    font-size:22px;font-weight:800;
+    background:#f2f3f6;
+    padding:10px 14px;border-radius:999px;
+  }
+
+  .stats{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    justify-content:center;
+  }
+
+  .stat{
+    font-size:16px;
+    font-weight:800;
+    background:#f2f3f6;
+    padding:8px 12px;
+    border-radius:999px;
+  }
+
+  .restartBtn{
+    display:none;
+    cursor:pointer;
+    border:0;
+    border-radius:14px;
+    padding:12px 18px;
+    font-size:18px;
+    font-weight:900;
+    background:#2563eb;
+    color:#fff;
+  }
+
+  .overlay{
+    position:fixed;
+    inset:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background: rgba(0,0,0,.65);
+    backdrop-filter: blur(1px);
+    cursor:pointer;
+    z-index: 999;
+  }
+
+  .startBtn{
+    cursor:pointer;
+    border:0;
+    border-radius:18px;
+    padding:18px 30px;
+    font-size:30px;
+    font-weight:900;
+    background:#16a34a;
+    color:#fff;
+    box-shadow:0 16px 30px rgba(22,163,74,.25);
+  }
+
+  .startBtn:active{transform:scale(.99)}
+
+  .hidden{display:none}
+
+  @media (max-width:520px){
+    .letter{font-size:120px}
+    .btnLabel{font-size:18px}
+    .red-btn{width:120px;height:120px}
+    .startBtn{font-size:26px}
+  }
+</style>
+</head>
+<body>
+
+<div class="panel" id="panel">
+  <div class="letter" id="letter">—</div>
+
+  <div class="feedback" id="feedback"></div>
+
+  <div class="btnLabel">Нажми, если гласная</div>
+  <button class="red-btn" id="btn" aria-label="Нажми если гласная"></button>
+
+  <div class="score">Очки: <span id="score">0</span></div>
+
+  <div class="stats">
+    <div class="stat">Правильно: <span id="correctCount">0</span></div>
+    <div class="stat">Ошибки: <span id="incorrectCount">0</span></div>
+    <div class="stat">Буква: <span id="roundCount">0</span>/<span id="totalCount">0</span></div>
+  </div>
+
+  <button class="restartBtn" id="restartBtn" type="button">Начать заново</button>
+</div>
+
+<div class="overlay" id="overlay" aria-label="Экран старта">
+  <button class="startBtn" id="startBtn" type="button">НАЧАТЬ</button>
+</div>
+
+<script>
+  const GAME_ID = 3;
+
+  const LETTERS = "а б у т о к д и ы г л у".split(" ").map(x => x.toUpperCase());
+  const VOWELS  = new Set(["А","Е","Ё","И","О","У","Ы","Э","Ю","Я"]);
+  const INTERVAL_MS = 3000;
+
+  const letterEl = document.getElementById("letter");
+  const feedbackEl = document.getElementById("feedback");
+  const scoreEl = document.getElementById("score");
+  const correctCountEl = document.getElementById("correctCount");
+  const incorrectCountEl = document.getElementById("incorrectCount");
+  const roundCountEl = document.getElementById("roundCount");
+  const totalCountEl = document.getElementById("totalCount");
+  const btn = document.getElementById("btn");
+
+  const overlay = document.getElementById("overlay");
+  const startBtn = document.getElementById("startBtn");
+  const restartBtn = document.getElementById("restartBtn");
+
+  let index = 0;
+  let currentLetter = "";
+  let pressed = false;
+  let scored = false;
+  let score = 0;
+
+  let correctAnswers = 0;
+  let incorrectAnswers = 0;
+  let startTime = null;
+  let resultSaved = false;
+
+  let roundToken = 0;
+  let started = false;
+  let finished = false;
+
+  totalCountEl.textContent = LETTERS.length;
+
+  function setFeedback(text, ok){
+    feedbackEl.textContent = text;
+    feedbackEl.className = "feedback " + (ok ? "good" : "bad");
+  }
+
+  function clearFeedback(){
+    feedbackEl.textContent = "";
+    feedbackEl.className = "feedback";
+  }
+
+  function updateStats(){
+    scoreEl.textContent = score;
+    correctCountEl.textContent = correctAnswers;
+    incorrectCountEl.textContent = incorrectAnswers;
+    roundCountEl.textContent = Math.min(index + 1, LETTERS.length);
+  }
+
+  function beep(ok){
+    try{
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+
+      o.frequency.value = ok ? 900 : 220;
+      g.gain.value = 0.05;
+
+      o.connect(g);
+      g.connect(ctx.destination);
+
+      o.start();
+
+      setTimeout(() => {
+        o.stop();
+        ctx.close();
+      }, 120);
+    }catch{}
+  }
+
+  function startGame(){
+    if (started) return;
+
+    started = true;
+    finished = false;
+    resultSaved = false;
+
+    index = 0;
+    score = 0;
+    correctAnswers = 0;
+    incorrectAnswers = 0;
+    startTime = Date.now();
+
+    btn.disabled = false;
+    restartBtn.style.display = "none";
+    overlay.classList.add("hidden");
+
+    clearFeedback();
+    updateStats();
+    nextRound();
+  }
+
+  function nextRound(){
+    if (!started || finished) {
+      return;
+    }
+
+    if (index >= LETTERS.length) {
+      finishGame();
+      return;
+    }
+
+    roundToken++;
+    const token = roundToken;
+
+    currentLetter = LETTERS[index];
+
+    pressed = false;
+    scored = false;
+
+    clearFeedback();
+    letterEl.textContent = currentLetter;
+    updateStats();
+
+    setTimeout(() => {
+      if (token !== roundToken) return;
+      if (!started || finished) return;
+
+      const isVowel = VOWELS.has(currentLetter);
+
+      if (isVowel) {
+        if (!pressed) {
+          incorrectAnswers++;
+          setFeedback("Ошибка", false);
+          beep(false);
+        }
+      } else {
+        if (!pressed) {
+          correctAnswers++;
+          setFeedback("Верно!", true);
+          beep(true);
+        }
+      }
+
+      index++;
+      updateStats();
+      nextRound();
+    }, INTERVAL_MS);
+  }
+
+  btn.addEventListener("click", () => {
+    if (!started || finished) return;
+    if (pressed) return;
+
+    pressed = true;
+
+    const isVowel = VOWELS.has(currentLetter);
+
+    if (isVowel) {
+      if (!scored) {
+        score++;
+        correctAnswers++;
+        scoreEl.textContent = score;
+        scored = true;
+      }
+
+      setFeedback("Верно!", true);
+      beep(true);
+    } else {
+      incorrectAnswers++;
+      setFeedback("Ошибка", false);
+      beep(false);
+    }
+
+    updateStats();
+  });
+
+  async function finishGame(){
+    if (finished) {
+      return;
+    }
+
+    finished = true;
+    started = false;
+    btn.disabled = true;
+
+    roundToken++;
+
+    const timeSpent = getTimeSpent();
+
+    letterEl.textContent = "✓";
+    setFeedback("Игра завершена. Сохраняем результат...", true);
+    restartBtn.style.display = "inline-block";
+    roundCountEl.textContent = LETTERS.length;
+
+    await saveGameResult(timeSpent);
+  }
+
+  function getTimeSpent(){
+    if (!startTime) {
+      return 0;
+    }
+
+    return Math.floor((Date.now() - startTime) / 1000);
+  }
+
+  async function saveGameResult(timeSpent){
+    if (resultSaved) {
+      return;
+    }
+
+    resultSaved = true;
+
+    try {
+      const response = await fetch('../../save_result.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'same-origin',
+        body: JSON.stringify({
+          game_id: GAME_ID,
+          correct_answers: correctAnswers,
+          incorrect_answers: incorrectAnswers,
+          time_spent: timeSpent
+        })
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setFeedback(
+          `Результат сохранён. Правильно: ${correctAnswers}, ошибок: ${incorrectAnswers}, время: ${timeSpent} сек.`,
+          true
+        );
+      } else {
+        setFeedback(
+          `Игра завершена, но результат не сохранён: ${data.message}`,
+          false
+        );
+      }
+    } catch (error) {
+      setFeedback(
+        "Игра завершена, но произошла ошибка при сохранении результата.",
+        false
+      );
+    }
+  }
+
+  function restartGame(){
+    started = false;
+    finished = false;
+    resultSaved = false;
+    roundToken++;
+
+    letterEl.textContent = "—";
+    clearFeedback();
+
+    overlay.classList.remove("hidden");
+  }
+
+  startBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    startGame();
+  });
+
+  overlay.addEventListener("click", () => startGame());
+
+  restartBtn.addEventListener("click", restartGame);
+
+  letterEl.textContent = "—";
+  roundCountEl.textContent = "0";
+  clearFeedback();
+</script>
+
+</body>
+</html>
