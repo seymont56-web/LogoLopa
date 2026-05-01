@@ -2,6 +2,14 @@
   box-sizing: border-box;
 }
 
+@font-face {
+  font-family: "Borsok";
+  src: url("../../assets/fonts/boorsok.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 body {
   font-family: system-ui, Arial;
   margin: 0;
@@ -33,7 +41,7 @@ a {
   flex-wrap: wrap;
 }
 
-.row > * {
+.row>* {
   flex: 1 1 320px;
 }
 
@@ -126,29 +134,16 @@ button.secondary {
   color: #555;
 }
 
-/* ===== Основная адаптивная сетка сайта ===== */
-
-/*
-  ПК:
-  count: 12
-  width: auto
-  margin: 240px
-  gutter: 20px
-  type: stretch
-*/
-
 .grid {
   display: grid;
   grid-template-columns: repeat(12, minmax(0, 1fr));
   gap: 20px;
 }
 
-/* Блок на всю ширину сетки */
 .grid-full {
   grid-column: 1 / 13;
 }
 
-/* Игровая карточка */
 .game {
   grid-column: span 4;
   border: 1px solid #eee;
@@ -161,7 +156,6 @@ button.secondary {
   width: 100%;
 }
 
-/* ===== Модальное окно с игрой ===== */
 
 .modal.hidden {
   display: none;
@@ -211,8 +205,6 @@ button.secondary {
   border: 0;
   display: block;
 }
-
-/* ===== Мобильная версия ===== */
 
 @media (max-width: 600px) {
   .wrap {

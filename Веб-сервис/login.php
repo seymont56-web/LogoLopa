@@ -61,16 +61,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Вход</title>
   <link rel="stylesheet" href="assets/style.css?v=3">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <style>
-    /* ===== Страница входа ===== */
-
     body {
       background: #29209D;
       overflow-x: hidden;
     }
 
-    /* Страница занимает всю высоту.
-   Шапка fixed и не влияет на положение карточки. */
     .login-page {
       position: relative;
       min-height: 100vh;
@@ -84,8 +81,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       background-position: center center;
       background-size: cover;
     }
-
-    /* ===== Фиксированная шапка ===== */
 
     .login-header {
       position: fixed;
@@ -116,7 +111,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         inset 0 -1px 10px rgba(255, 255, 255, .1);
     }
 
-    /* Логотип */
+    .login-mobile-back {
+      display: none;
+    }
+
     .login-logo {
       grid-column: 1 / 2;
       justify-self: start;
@@ -137,7 +135,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       object-fit: contain;
     }
 
-    /* Центральные ссылки */
     .login-nav {
       grid-column: 5 / 9;
 
@@ -160,7 +157,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       color: rgba(255, 255, 255, 1);
     }
 
-    /* Кнопка Войти справа */
     .login-header-btn {
       grid-column: 11 / 13;
       justify-self: end;
@@ -189,13 +185,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       box-shadow: 0 0 18px rgba(255, 159, 10, .35);
     }
 
-    /* ===== Контейнер карточки ===== */
 
     .login-page .login-wrap {
       width: calc(100% - clamp(80px, 30vw, 480px));
       max-width: none;
 
-      /* Центрирует карточку по вертикали и горизонтали */
       margin: auto;
 
       padding: clamp(96px, 9vh, 130px) 0 clamp(32px, 5vh, 64px);
@@ -213,7 +207,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       align-items: center;
     }
 
-    /* ===== Карточка входа ===== */
 
     .login-card {
       grid-column: 2 / 12;
@@ -233,11 +226,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       transform: scale(1.01);
     }
 
-    /* Внутренняя сетка карточки:
-   10 колонок:
-   картинка 1/5,
-   5-я колонка — отступ,
-   форма 6/11 */
     .login-form-area {
       min-height: calc(clamp(430px, 30.5vw, 488px) - 16px);
       height: 100%;
@@ -248,7 +236,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       align-items: stretch;
     }
 
-    /* Левая часть под картинку */
     .login-illustration {
       grid-column: 1 / 5;
 
@@ -267,7 +254,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       object-fit: cover;
     }
 
-    /* Правая часть с формой */
     .login-content {
       grid-column: 6 / 11;
 
@@ -350,7 +336,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       transform: scale(1.03);
     }
 
-    /* Чекбокс "Запомнить меня" */
     .remember {
       padding-left: clamp(8px, 1vw, 16px);
       display: flex;
@@ -374,7 +359,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       color: #ABACC2;
     }
 
-    /* ===== Ноутбуки ===== */
 
     @media (max-width: 1366px) {
       .login-card {
@@ -390,7 +374,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       }
     }
 
-    /* Низкие экраны ноутбуков */
     @media (max-height: 760px) {
       .login-page .login-wrap {
         padding-top: 112px;
@@ -415,7 +398,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       }
     }
 
-    /* ===== Мобильная версия login ===== */
 
     @media (max-width: 768px) {
 
@@ -445,7 +427,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         background-size: cover;
       }
 
-      /* ===== Header mobile bottom ===== */
 
       .login-header {
         position: fixed;
@@ -468,11 +449,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       }
 
       .login-logo {
+        display: none;
+      }
+
+      .login-mobile-back {
         grid-column: 1 / 2;
         justify-self: start;
 
         width: 38px;
         height: 38px;
+        border-radius: 50%;
+
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        background: rgba(255, 255, 255, .16);
+        color: #fff;
+
+        font-family: Arial, sans-serif;
+        font-size: 38px;
+        line-height: 1;
+        text-decoration: none;
+
+        padding-bottom: 5px;
       }
 
       .login-nav {
@@ -489,7 +489,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         font-size: 14px;
       }
 
-      /* ===== Login card mobile ===== */
 
       .login-page .login-wrap {
         width: calc(100% - 32px);
@@ -630,7 +629,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       }
     }
 
-    /* ===== Очень маленькие телефоны ===== */
 
     @media (max-width: 420px) {
       .login-page {
@@ -644,7 +642,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         padding: 0 12px;
       }
 
-      .login-logo {
+      .login-mobile-back {
         width: 38px;
         height: 38px;
       }
@@ -713,6 +711,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <main class="login-page">
 
     <header class="login-header">
+      <a class="login-mobile-back" href="index.php" aria-label="Назад на главную">
+        ‹
+      </a>
+
       <a href="index.php" class="login-logo" aria-label="Логотип">
         <img src="assets/img/logo.svg" alt="Логотип">
       </a>
@@ -725,7 +727,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
       <a href="login.php" class="login-header-btn">Войти</a>
     </header>
-
     <div class="wrap login-wrap">
       <div class="grid login-grid">
 

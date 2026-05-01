@@ -20,6 +20,7 @@ if ($role === 'teacher') {
   <title>Логопола — игры, которые учат говорить</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="assets/style.css">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 
   <style>
     body {
@@ -63,7 +64,6 @@ if ($role === 'teacher') {
       gap: 20px;
     }
 
-    /* ===== Header ===== */
 
     .login-header {
       position: fixed;
@@ -166,8 +166,6 @@ if ($role === 'teacher') {
     .login-header-btn:hover {
       box-shadow: 0 0 18px rgba(255, 159, 10, .35);
     }
-
-    /* ===== Hero ===== */
 
     .landing-hero {
       position: relative;
@@ -375,7 +373,6 @@ if ($role === 'teacher') {
       display: block;
     }
 
-    /* ===== Lopa frame ===== */
 
     .landing-lopa-section {
       position: relative;
@@ -453,7 +450,6 @@ if ($role === 'teacher') {
       font-weight: 600;
     }
 
-    /* ===== Как это работает ===== */
 
     .landing-how-section {
       position: relative;
@@ -599,7 +595,6 @@ if ($role === 'teacher') {
       width: 150px;
     }
 
-    /* ===== 1401–1919px ===== */
 
     @media (max-width: 1919px) and (min-width: 1401px) {
       section[id] {
@@ -714,7 +709,6 @@ if ($role === 'teacher') {
       }
     }
 
-    /* ===== 1440px ===== */
 
     @media (max-width: 1440px) {
       section[id] {
@@ -905,7 +899,6 @@ if ($role === 'teacher') {
       }
     }
 
-    /* ===== 1280px ===== */
 
     @media (max-width: 1280px) {
       section[id] {
@@ -1044,7 +1037,6 @@ if ($role === 'teacher') {
       }
     }
 
-    /* ===== Мобильная версия landing ===== */
 
     @media (max-width: 768px) {
       section[id] {
@@ -1071,7 +1063,6 @@ if ($role === 'teacher') {
         gap: 16px;
       }
 
-      /* ===== Header mobile bottom ===== */
 
       .login-header {
         position: fixed;
@@ -1210,7 +1201,6 @@ if ($role === 'teacher') {
         font-size: 14px;
       }
 
-      /* ===== Hero mobile ===== */
 
       .landing-hero {
         min-height: auto;
@@ -1379,8 +1369,6 @@ if ($role === 'teacher') {
         font-size: 16px;
       }
 
-      /* ===== Lopa mobile ===== */
-
       .landing-lopa-section {
         position: relative;
         z-index: 10;
@@ -1461,7 +1449,6 @@ if ($role === 'teacher') {
         line-height: 1.18;
       }
 
-      /* ===== How mobile slider ===== */
 
       .landing-how-section {
         padding: 48px 0 104px;
@@ -1585,7 +1572,6 @@ if ($role === 'teacher') {
       }
     }
 
-    /* ===== Очень маленькие телефоны ===== */
 
     @media (max-width: 420px) {
       .landing-container {
@@ -1766,16 +1752,16 @@ if ($role === 'teacher') {
     <section class="landing-hero" id="home">
 
       <div class="landing-bg" aria-hidden="true">
-        <img class="landing-bg__cloud landing-bg__cloud--1" src="assets/img/landing/Облако1.png" alt="">
-        <img class="landing-bg__cloud landing-bg__cloud--2" src="assets/img/landing/Облако2.png" alt="">
-        <img class="landing-bg__cloud landing-bg__cloud--3" src="assets/img/landing/Облако3.png" alt="">
+        <img class="landing-bg__cloud landing-bg__cloud--1" src="assets/img/landing/flow1.png" alt="">
+        <img class="landing-bg__cloud landing-bg__cloud--2" src="assets/img/landing/flow2.png" alt="">
+        <img class="landing-bg__cloud landing-bg__cloud--3" src="assets/img/landing/flow3.png" alt="">
 
         <img class="landing-bg__line landing-bg__line--1" src="assets/img/landing/Vector.svg" alt="">
         <img class="landing-bg__line landing-bg__line--2" src="assets/img/landing/Vector1.svg" alt="">
 
-        <img class="landing-bg__star landing-bg__star--1" src="assets/img/landing/Звезда1.svg" alt="">
-        <img class="landing-bg__star landing-bg__star--2" src="assets/img/landing/Звезда2.svg" alt="">
-        <img class="landing-bg__star landing-bg__star--3" src="assets/img/landing/Звезда3.svg" alt="">
+        <img class="landing-bg__star landing-bg__star--1" src="assets/img/landing/star1.svg" alt="">
+        <img class="landing-bg__star landing-bg__star--2" src="assets/img/landing/star2.svg" alt="">
+        <img class="landing-bg__star landing-bg__star--3" src="assets/img/landing/star3.svg" alt="">
       </div>
 
       <div class="landing-container">
@@ -1818,17 +1804,17 @@ if ($role === 'teacher') {
               <div class="landing-lopa-list">
 
                 <div class="landing-lopa-list__item">
-                  <img src="assets/img/landing/ИконкаЛопа1.png" alt="">
+                  <img src="assets/img/landing/iconlopa1.png" alt="">
                   <p>Лопа любит лопать буквы</p>
                 </div>
 
                 <div class="landing-lopa-list__item">
-                  <img src="assets/img/landing/ИконкаЛопа2.png" alt="">
+                  <img src="assets/img/landing/iconlopa2.png" alt="">
                   <p>У Лопы мягкий, пушистый животик, в котором живёт целая библиотека звуков</p>
                 </div>
 
                 <div class="landing-lopa-list__item">
-                  <img src="assets/img/landing/ИконкаЛопа3.png" alt="">
+                  <img src="assets/img/landing/iconlopa3.png" alt="">
                   <p>Лопа немного стесняется новых детей, но всегда машет лапкой первой</p>
                 </div>
 
@@ -1860,7 +1846,7 @@ if ($role === 'teacher') {
                   Осваиваются звуки, упражнения и речевые конструкции.
                 </p>
               </div>
-              <img class="landing-how-card__pic landing-how-card__pic--book" src="assets/img/landing/Книга.png" alt="">
+              <img class="landing-how-card__pic landing-how-card__pic--book" src="assets/img/landing/book.png" alt="">
             </article>
 
             <article class="landing-how-card">
@@ -1872,7 +1858,7 @@ if ($role === 'teacher') {
                   соответствующие пройденной теме.
                 </p>
               </div>
-              <img class="landing-how-card__pic landing-how-card__pic--pc" src="assets/img/landing/Компьютер.png" alt="">
+              <img class="landing-how-card__pic landing-how-card__pic--pc" src="assets/img/landing/pc.png" alt="">
             </article>
 
             <article class="landing-how-card">
@@ -1884,7 +1870,8 @@ if ($role === 'teacher') {
                   Повторение в игровой форме помогает довести навык до автоматизма.
                 </p>
               </div>
-              <img class="landing-how-card__pic landing-how-card__pic--gamepad" src="assets/img/landing/Геймпад.png" alt="">
+              <img class="landing-how-card__pic landing-how-card__pic--gamepad" src="assets/img/landing/gamepad.png"
+                alt="">
             </article>
 
           </div>

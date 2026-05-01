@@ -1,58 +1,72 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ru">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Замок Волшебника: Составь Слова</title>
-    <link rel="stylesheet" href="style.css">
-    
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Лопа — Составь слово</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
+
 <body>
+  <main class="game-root" id="gameRoot">
+    <section class="start-screen screen screen--active" id="startScreen" aria-label="Начало игры">
+      <button class="start-btn" id="startBtn" type="button">Начать</button>
+    </section>
 
-    <div class="novel-overlay" id="novel-overlay">
-        <div class="novel-text">
-            <h2>📜 День рождения звуковичков 📜</h2>
-            <p>Однажды у звуковичков был день рождения. Но злой волшебник звукомор испортил им праздник!</p>
-            <p>Он прогрыз в торте, каше и супе дырки! Помоги звуковичкам вернуть гласные буквы и покрась их в цвет, который звукомор сильно боится!</p>
-            <p>Тебе следует:</p>
-            <ol>
-                <li>Перетащить правильные буквы в пустые места (_).</li>
-                <li>Нажать **"Проверить"**.</li>
-                <li>Если слово собрано верно, используй волшебную **Кисть**, чтобы покрасить гласные в красный цвет.</li>
-            </ol>
-            <p>У тебя есть только **3 попытки** для каждого слова. Начнём!</p>
-            <button id="novel-btn">Начать испытание</button>
+    <section class="novel-screen screen" id="novelScreen" aria-label="Предыстория игры">
+      <button class="novel-frame" id="novelFrame" type="button" aria-label="Следующий кадр истории">
+        <picture>
+          <source id="novelSource" srcset="" media="(orientation: portrait)" />
+          <img id="novelImage" src="" alt="Кадр истории" />
+        </picture>
+
+        <span class="novel-counter" id="novelCounter">1</span>
+        <span class="novel-hint">Нажми, чтобы продолжить</span>
+      </button>
+    </section>
+
+    <section class="game-screen screen" id="gameScreen" aria-label="Игровое поле">
+      <div class="game-bg-shape game-bg-shape--one"></div>
+      <div class="game-bg-shape game-bg-shape--two"></div>
+
+      <header class="game-header">
+        <div>
+          <p class="eyebrow">Игра 1</p>
+          <h1>Составь слово</h1>
         </div>
+
+        <div class="level-pill" id="levelPill">1/5</div>
+      </header>
+
+      <div class="word-board" id="wordsContainer" aria-label="Слово с пропусками"></div>
+
+      <div class="letters-board" id="lettersContainer" aria-label="Буквы для выбора"></div>
+
+      <div class="paint-panel" id="paintPanel" aria-hidden="true">
+        <button class="paint-tool" id="redPaint" type="button" aria-label="Красная кисть">🖌️</button>
+      </div>
+
+      <div class="controls">
+        <button class="game-btn game-btn--ghost" id="resetBtn" type="button">Сбросить</button>
+      </div>
+
+      <div class="finish-card" id="finishCard" aria-hidden="true">
+        <div class="finish-card__icon">🏆</div>
+        <h2>Готово!</h2>
+        <p id="finishText">Ты помог звуковичкам вернуть буквы.</p>
+        <button class="game-btn game-btn--primary" id="restartBtn" type="button">Заново</button>
+      </div>
+    </section>
+
+    <div class="success-pop" id="successPop" aria-hidden="true">
+      <img id="successPopImage" src="../success_img/1.png" alt="" />
     </div>
 
-    <div class="game-container">
+    <div class="toast-container" id="toastContainer" aria-live="polite" aria-atomic="true"></div>
+  </main>
 
-        <h1>Составь Слово</h1>
-        
-        <div class="words-container">
-            </div>
-
-        <div class="letters-container" id="letters-container">
-            </div>
-        
-        <div class="paint-area">
-            <p>Наполни гласные магической силой (Перетащи кисть на красную букву):</p>
-            <div class="color-palette">
-                <div class="color" id="red-paint" draggable="true">
-                    🔴
-                </div>
-            </div>
-        </div>
-
-        <div id="result"></div>
-
-        <div class="controls">
-            <button id="check-btn">Проверить</button>
-            <button id="reset-btn">Сбросить</button>
-        </div>
-    </div>
-
-    <script src="game.js"></script>
+  <script src="game.js"></script>
 </body>
+
 </html>

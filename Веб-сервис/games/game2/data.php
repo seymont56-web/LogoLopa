@@ -1,28 +1,57 @@
 <?php
 header('Content-Type: application/json; charset=utf-8');
 
-// Список слов для игры.
-// image — необязателен: если файла нет, просто не показываем картинку.
 $items = [
-  ['word' => 'КОТ',    'hint' => 'Домашнее животное',          'image' => 'images/cat.png'],
-  ['word' => 'СОК',    'hint' => 'Напиток из фруктов',          'image' => 'images/juice.png'],
-  ['word' => 'ЛИМОН',  'hint' => 'Жёлтый кислый фрукт',         'image' => 'images/lemon.png'],
-  ['word' => 'СНЕГ',   'hint' => 'Белое и холодное',            'image' => 'images/snow.png'],
-  ['word' => 'ПЛИТА',  'hint' => 'На ней готовят еду',          'image' => 'images/stove.png'],
-  ['word' => 'РАКЕТА', 'hint' => 'Летит к звёздам',             'image' => 'images/rocket.png'],
-  ['word' => 'ПИТОН',  'hint' => 'Змея (и язык программирования)','image' => 'images/python.png'],
+  [
+    'word' => 'КОТ',
+    'hint' => 'Мяукает и любит молоко',
+    'image' => 'img/cat.png',
+    'sound' => 'sounds/cat.mp3'
+  ],
+  [
+    'word' => 'СОБАКА',
+    'hint' => 'Лает и охраняет дом',
+    'image' => 'img/dog.png',
+    'sound' => 'sounds/dog.mp3'
+  ],
+  [
+    'word' => 'КОРОВА',
+    'hint' => 'Мычит и даёт молоко',
+    'image' => 'img/cow.png',
+    'sound' => 'sounds/cow.mp3'
+  ],
+  [
+    'word' => 'УТКА',
+    'hint' => 'Крякает и плавает в пруду',
+    'image' => 'img/duck.png',
+    'sound' => 'sounds/duck.mp3'
+  ],
+  [
+    'word' => 'ЛЯГУШКА',
+    'hint' => 'Квакает и прыгает у воды',
+    'image' => 'img/frog.png',
+    'sound' => 'sounds/frog.mp3'
+  ],
+  [
+    'word' => 'ЛОШАДЬ',
+    'hint' => 'Ржёт и быстро скачет',
+    'image' => 'img/horse.png',
+    'sound' => 'sounds/horse.mp3'
+  ]
 ];
 
 $out = [];
+
 foreach ($items as $it) {
   $word = mb_strtoupper($it['word'], 'UTF-8');
-  // Безопасное разбиение кириллических букв
   $letters = preg_split('//u', $word, -1, PREG_SPLIT_NO_EMPTY);
+
   $out[] = [
-    'word'    => $word,
+    'word' => $word,
     'letters' => $letters,
-    'hint'    => $it['hint'],
-    'image'   => $it['image'],
+    'hint' => $it['hint'],
+    'image' => $it['image'],
+    'sound' => $it['sound']
   ];
 }
 

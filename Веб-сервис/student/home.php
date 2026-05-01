@@ -24,7 +24,7 @@ $stmt = $pdo->prepare("
   FROM student_game_access a
   JOIN games g ON g.id = a.game_id
   WHERE a.student_id = ? AND a.is_enabled = 1
-  ORDER BY g.title
+  ORDER BY g.code
 ");
 $stmt->execute([$uid]);
 $games = $stmt->fetchAll();
@@ -41,7 +41,7 @@ function game_preview_path(string $gamePath): string
     $gameDir = rtrim($gamePath, '/');
   }
 
-  return $gameDir . '/preview.jpg';
+  return $gameDir . '/img/preview.png';
 }
 ?>
 <!doctype html>
@@ -52,11 +52,8 @@ function game_preview_path(string $gamePath): string
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Ученик — игры</title>
   <link rel="stylesheet" href="../assets/style.css?v=3">
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
   <style>
-    /* =========================================================
-   Страница ученика — доступные игры
-   ========================================================= */
-
     html,
     body {
       margin: 0;
@@ -79,8 +76,6 @@ function game_preview_path(string $gamePath): string
 
       overflow-x: hidden;
     }
-
-    /* ===== Шапка ===== */
 
     .student-header {
       position: fixed;
@@ -183,13 +178,10 @@ function game_preview_path(string $gamePath): string
       box-shadow: 0 0 18px rgba(255, 159, 10, .35);
     }
 
-    /* ===== Бургер-кнопка ===== */
 
     .mobile-menu-btn {
       display: none;
     }
-
-    /* ===== Контейнер страницы ===== */
 
     .student-home {
       min-height: 100vh;
@@ -220,8 +212,6 @@ function game_preview_path(string $gamePath): string
       gap: 20px;
       align-items: start;
     }
-
-    /* ===== Блок игр ===== */
 
     .student-games-section {
       grid-column: 2 / 12;
@@ -255,8 +245,6 @@ function game_preview_path(string $gamePath): string
     .student-games-card:hover {
       transform: scale(1.01);
     }
-
-    /* ===== Информация об ученике ===== */
 
     .student-info-row {
       margin-bottom: clamp(24px, 2vw, 34px);
@@ -316,7 +304,6 @@ function game_preview_path(string $gamePath): string
       line-height: 1.25;
     }
 
-    /* ===== Сетка карточек игр ===== */
 
     .student-games-grid {
       display: grid;
@@ -411,7 +398,6 @@ function game_preview_path(string $gamePath): string
       transform: scale(1.04);
     }
 
-    /* ===== Пустое состояние ===== */
 
     .student-empty-games {
       min-height: 250px;
@@ -428,8 +414,6 @@ function game_preview_path(string $gamePath): string
       font-size: clamp(15px, 1.125vw, 18px);
       font-weight: 600;
     }
-
-    /* ===== Модальное окно игры ===== */
 
     .modal {
       position: fixed;
@@ -514,7 +498,6 @@ function game_preview_path(string $gamePath): string
       border: 0;
     }
 
-    /* ===== Ноутбуки ===== */
 
     @media (max-width: 1366px) {
       .student-header {
@@ -560,8 +543,6 @@ function game_preview_path(string $gamePath): string
         min-height: 390px;
       }
     }
-
-    /* ===== Планшеты ===== */
 
     @media (max-width: 1024px) {
       .student-header {
@@ -617,7 +598,6 @@ function game_preview_path(string $gamePath): string
       }
     }
 
-    /* ===== 768–521px ===== */
 
     @media (max-width: 768px) and (min-width: 521px) {
       .student-header {
@@ -707,7 +687,6 @@ function game_preview_path(string $gamePath): string
       }
     }
 
-    /* ===== Мобильная версия ===== */
 
     @media (max-width: 520px) {
       body.student-home-page {
@@ -796,7 +775,6 @@ function game_preview_path(string $gamePath): string
         font-size: 14px;
       }
 
-      /* ===== Mobile dropdown menu ===== */
 
       .student-nav {
         position: fixed;
@@ -986,7 +964,6 @@ function game_preview_path(string $gamePath): string
         line-height: 1.3;
       }
 
-      /* ===== Модалка игры mobile ===== */
 
       .modal {
         padding: 10px;
@@ -1020,7 +997,6 @@ function game_preview_path(string $gamePath): string
       }
     }
 
-    /* ===== Очень маленькие телефоны ===== */
 
     @media (max-width: 420px) {
       body.student-home-page {
@@ -1116,7 +1092,6 @@ function game_preview_path(string $gamePath): string
       }
     }
 
-    /* ===== Низкие экраны ноутбуков ===== */
 
     @media (max-height: 760px) and (min-width: 769px) {
       .student-home {
@@ -1277,7 +1252,7 @@ function game_preview_path(string $gamePath): string
     });
   </script>
 
-  <script src="../assets/app.js?v=3"></script>
+  <script src="../assets/app.js?v=4"></script>
 </body>
 
 </html>

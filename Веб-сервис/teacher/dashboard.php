@@ -72,10 +72,9 @@ $students = $pdo->query("
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Панель учителя</title>
   <link rel="stylesheet" href="../assets/style.css">
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
 
   <style>
-    /* ===== Панель учителя ===== */
-
     html,
     body {
       margin: 0;
@@ -103,8 +102,6 @@ $students = $pdo->query("
       background-position: center center;
       background-size: cover;
     }
-
-    /* ===== Шапка ===== */
 
     .teacher-header {
       position: fixed;
@@ -205,13 +202,11 @@ $students = $pdo->query("
       box-shadow: 0 0 18px rgba(255, 159, 10, .35);
     }
 
-    /* ===== Бургер-кнопка ===== */
 
     .mobile-menu-btn {
       display: none;
     }
 
-    /* ===== Основной контейнер ===== */
 
     .teacher-wrap {
       width: calc(100% - clamp(80px, 30vw, 480px));
@@ -236,7 +231,6 @@ $students = $pdo->query("
       font-weight: 900;
     }
 
-    /* ===== 12-колоночная сетка ===== */
 
     .teacher-grid {
       width: 100%;
@@ -295,8 +289,6 @@ $students = $pdo->query("
       font-size: clamp(14px, 1vw, 16px);
       line-height: 1.25;
     }
-
-    /* ===== Форма ===== */
 
     .teacher-form {
       width: 100%;
@@ -360,7 +352,6 @@ $students = $pdo->query("
       box-shadow: 0 10px 24px rgba(255, 159, 10, .45);
     }
 
-    /* ===== Сообщения ===== */
 
     .teacher-message {
       margin-top: 16px;
@@ -382,7 +373,6 @@ $students = $pdo->query("
       color: #b52b2b;
     }
 
-    /* ===== Таблица учеников ===== */
 
     .teacher-table-wrap {
       width: 100%;
@@ -432,7 +422,6 @@ $students = $pdo->query("
       color: #7b7b92;
     }
 
-    /* ===== Ноутбуки ===== */
 
     @media (max-width: 1366px) {
       .teacher-header {
@@ -478,7 +467,6 @@ $students = $pdo->query("
       }
     }
 
-    /* ===== Планшеты ===== */
 
     @media (max-width: 1024px) {
       .teacher-header {
@@ -529,7 +517,6 @@ $students = $pdo->query("
       }
     }
 
-    /* ===== 768–521px ===== */
 
     @media (max-width: 768px) and (min-width: 521px) {
       .teacher-header {
@@ -606,7 +593,6 @@ $students = $pdo->query("
       }
     }
 
-    /* ===== Мобильная версия ===== */
 
     @media (max-width: 520px) {
 
@@ -629,7 +615,6 @@ $students = $pdo->query("
         background-size: cover;
       }
 
-      /* ===== Header mobile bottom ===== */
 
       .teacher-header {
         position: fixed;
@@ -713,8 +698,6 @@ $students = $pdo->query("
         font-size: 14px;
       }
 
-      /* ===== Mobile dropdown menu ===== */
-
       .teacher-nav {
         position: fixed;
         left: 14px;
@@ -776,7 +759,6 @@ $students = $pdo->query("
         background: rgba(255, 159, 10, .95);
       }
 
-      /* ===== Layout mobile ===== */
 
       .teacher-wrap {
         width: calc(100% - 36px);
@@ -836,7 +818,6 @@ $students = $pdo->query("
         text-align: center;
       }
 
-      /* ===== Form mobile ===== */
 
       .teacher-form p {
         margin: 14px 0;
@@ -875,8 +856,6 @@ $students = $pdo->query("
         line-height: 1.3;
         text-align: center;
       }
-
-      /* ===== Students list as cards ===== */
 
       .teacher-table-wrap {
         margin-top: 28px;
@@ -985,7 +964,6 @@ $students = $pdo->query("
       }
     }
 
-    /* ===== Очень маленькие телефоны ===== */
 
     @media (max-width: 420px) {
       body {
@@ -1091,7 +1069,6 @@ $students = $pdo->query("
       }
     }
 
-    /* ===== Низкие экраны ноутбуков ===== */
 
     @media (max-height: 760px) and (min-width: 769px) {
       .teacher-wrap {

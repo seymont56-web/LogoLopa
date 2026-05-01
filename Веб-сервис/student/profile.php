@@ -49,9 +49,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Профиль</title>
   <link rel="stylesheet" href="../assets/style.css?v=4">
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
 
   <style>
-    /* ===== Страница профиля ученика ===== */
 
     html,
     body {
@@ -82,8 +82,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       background-position: center center;
       background-size: cover;
     }
-
-    /* ===== Шапка ===== */
 
     .profile-header {
       position: fixed;
@@ -184,13 +182,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       box-shadow: 0 0 18px rgba(255, 159, 10, .35);
     }
 
-    /* ===== Бургер-кнопка ===== */
 
     .mobile-menu-btn {
       display: none;
     }
-
-    /* ===== Контейнер карточки ===== */
 
     .profile-wrap {
       width: calc(100% - clamp(80px, 30vw, 480px));
@@ -355,8 +350,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       transform: scale(1.03);
     }
 
-    /* ===== Сообщения справа снизу ===== */
-
     .profile-toast {
       position: fixed;
       right: 28px;
@@ -409,7 +402,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       }
     }
 
-    /* ===== Ноутбуки ===== */
 
     @media (max-width: 1366px) {
       .profile-header {
@@ -451,7 +443,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       }
     }
 
-    /* ===== Планшеты ===== */
 
     @media (max-width: 1024px) {
       .profile-header {
@@ -512,7 +503,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       }
     }
 
-    /* ===== 768–521px ===== */
 
     @media (max-width: 768px) and (min-width: 521px) {
       .profile-header {
@@ -614,7 +604,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       }
     }
 
-    /* ===== Мобильная версия как login + бургер ===== */
 
     @media (max-width: 520px) {
 
@@ -637,7 +626,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         overflow: hidden;
       }
 
-      /* ===== Header mobile bottom ===== */
 
       .profile-header {
         position: fixed;
@@ -721,7 +709,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         font-size: 14px;
       }
 
-      /* ===== Mobile dropdown menu ===== */
 
       .profile-nav {
         position: fixed;
@@ -784,7 +771,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         background: rgba(255, 159, 10, .95);
       }
 
-      /* ===== Profile card mobile ===== */
 
       .profile-wrap {
         width: calc(100% - 32px);
@@ -916,7 +902,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       }
     }
 
-    /* ===== Очень маленькие телефоны ===== */
 
     @media (max-width: 420px) {
       .profile-page {
@@ -995,7 +980,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       }
     }
 
-    /* ===== Низкие экраны ноутбуков ===== */
 
     @media (max-height: 760px) and (min-width: 769px) {
       .profile-wrap {
@@ -1021,7 +1005,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       }
     }
 
-    /* ===== Низкие телефоны ===== */
 
     @media (max-width: 520px) and (max-height: 720px) {
       .profile-page {

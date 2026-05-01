@@ -1,139 +1,747 @@
-document.addEventListener("DOMContentLoaded", function() {
-    // --- Получение DOM-элементов ---
-    const lettersContainer = document.getElementById("letters-container");
-    const wordsContainer = document.querySelector(".words-container");
-    const redPaint = document.getElementById("red-paint");
-    const checkBtn = document.getElementById("check-btn");
-    const resetBtn = document.getElementById("reset-btn");
-    const result = document.getElementById("result");
-    const novelOverlay = document.getElementById("novel-overlay");
-    const novelBtn = document.getElementById("novel-btn");
+(function () {
+    'use strict';
 
-    // --- ID ИГРЫ В БАЗЕ ДАННЫХ ---
     const GAME_ID = 1;
+    const MAX_ERRORS = 3;
+    const NOVEL_MAX_FRAMES = 20;
 
-    // --- ПЕРЕМЕННЫЕ ДЛЯ РЕЗУЛЬТАТОВ ---
-    let correctAnswers = 0;
-    let incorrectAnswers = 0;
-    let startTime = null;
-    let resultSaved = false;
+    const SUCCESS_IMAGES_COUNT = 4;
+    const SUCCESS_IMAGES_PATH = '../success_img/';
 
-    // --- ДАННЫЕ УРОВНЕЙ И ЛИШНИЕ БУКВЫ ---
-    const GAME_LEVELS = [
+    const VOWELS = ['А', 'Е', 'Ё', 'И', 'О', 'У', 'Ы', 'Э', 'Ю', 'Я'];
+
+    const LEVELS = [
         {
-            word: "КАША",
-            correctVowels: 2,
-            extraLetters: ["А", "Е", "И", "О"],
-            imagePlaceholder: "Изображение каши"
+            word: 'КАША',
+            extraLetters: ['А', 'Е', 'И', 'О']
         },
         {
-            word: "ТОРТ",
-            correctVowels: 1,
-            extraLetters: ["А", "Е", "И", "У"],
-            imagePlaceholder: "Изображение торта"
+            word: 'ТОРТ',
+            extraLetters: ['А', 'Е', 'И', 'У']
         },
         {
-            word: "СУП",
-            correctVowels: 1,
-            extraLetters: ["А", "Е", "О", "Я"],
-            imagePlaceholder: "Изображение супа"
+            word: 'СУП',
+            extraLetters: ['А', 'Е', 'О', 'Я']
+        },
+        {
+            word: 'ЛИСА',
+            extraLetters: ['А', 'О', 'У', 'Ы']
+        },
+        {
+            word: 'МУКА',
+            extraLetters: ['Е', 'И', 'О', 'Я']
         }
     ];
 
-    let currentLevel = 0;
-    const maxErrors = 3;
-    let errors = 0;
+    const els = {
+        startScreen: document.getElementById('startScreen'),
+        novelScreen: document.getElementById('novelScreen'),
+        gameScreen: document.getElementById('gameScreen'),
 
-    // --- Управление начальным окном ---
-    novelBtn.addEventListener("click", function() {
-        novelOverlay.style.display = "none";
-        startNewGame();
-    });
+        startBtn: document.getElementById('startBtn'),
+        novelFrame: document.getElementById('novelFrame'),
+        novelImage: document.getElementById('novelImage'),
+        novelSource: document.getElementById('novelSource'),
+        novelCounter: document.getElementById('novelCounter'),
 
-    // --- СТАРТ НОВОЙ ИГРЫ ---
-    function startNewGame() {
-        currentLevel = 0;
-        errors = 0;
-        correctAnswers = 0;
-        incorrectAnswers = 0;
-        resultSaved = false;
-        startTime = Date.now();
+        wordsContainer: document.getElementById('wordsContainer'),
+        lettersContainer: document.getElementById('lettersContainer'),
 
-        loadLevel(currentLevel);
+        paintPanel: document.getElementById('paintPanel'),
+        redPaint: document.getElementById('redPaint'),
+
+        resetBtn: document.getElementById('resetBtn'),
+        restartBtn: document.getElementById('restartBtn'),
+
+        levelPill: document.getElementById('levelPill'),
+
+        finishCard: document.getElementById('finishCard'),
+        finishText: document.getElementById('finishText'),
+
+        successPop: document.getElementById('successPop'),
+        successPopImage: document.getElementById('successPopImage'),
+
+        toastContainer: document.getElementById('toastContainer')
+    };
+
+    const state = {
+        levelIndex: 0,
+        errors: 0,
+        correctAnswers: 0,
+        incorrectAnswers: 0,
+        startTime: 0,
+        resultSaved: false,
+
+        novelFrameIndex: 1,
+        availableNovelFrames: [],
+        activeAudio: null,
+
+        drag: null,
+        paintMode: false,
+        levelCompleted: false,
+        lastSuccessImageIndex: 0
+    };
+
+    document.addEventListener('DOMContentLoaded', init);
+
+    function init() {
+        lockViewport();
+
+        els.startBtn.addEventListener('click', startIntro);
+        els.novelFrame.addEventListener('click', nextNovelFrame);
+        els.resetBtn.addEventListener('click', resetCurrentLevel);
+        els.restartBtn.addEventListener('click', startGame);
+
+        els.redPaint.dataset.dragType = 'paint';
+        els.redPaint.disabled = true;
+        els.redPaint.addEventListener('pointerdown', startDrag);
+
+        window.addEventListener('resize', updateNovelSources);
+
+        showScreen(els.startScreen);
     }
 
-    // --- ФУНКЦИЯ ЗАГРУЗКИ УРОВНЯ ---
+    function lockViewport() {
+        document.documentElement.style.overflow = 'hidden';
+        document.body.style.overflow = 'hidden';
+    }
+
+    function showScreen(activeScreen) {
+        [els.startScreen, els.novelScreen, els.gameScreen].forEach(screen => {
+            screen.classList.toggle('screen--active', screen === activeScreen);
+        });
+    }
+
+    async function startIntro() {
+        showScreen(els.novelScreen);
+
+        state.availableNovelFrames = await detectNovelFrames();
+        state.novelFrameIndex = 1;
+
+        if (!state.availableNovelFrames.length) {
+            startGame();
+            return;
+        }
+
+        renderNovelFrame();
+    }
+
+    function getOrientationFolder() {
+        return window.matchMedia('(orientation: portrait)').matches ? 'vertical' : 'horizontal';
+    }
+
+    function imageExists(src) {
+        return new Promise(resolve => {
+            const img = new Image();
+
+            img.onload = () => resolve(true);
+            img.onerror = () => resolve(false);
+            img.src = src;
+        });
+    }
+
+    async function detectNovelFrames() {
+        const frames = [];
+
+        for (let i = 1; i <= NOVEL_MAX_FRAMES; i++) {
+            const horizontal = `img/horizontal/${i}.png`;
+            const vertical = `img/vertical/${i}.png`;
+
+            const existsHorizontal = await imageExists(horizontal).then(Boolean).catch(() => false);
+            const existsVertical = await imageExists(vertical).then(Boolean).catch(() => false);
+
+            if (!existsHorizontal && !existsVertical) {
+                if (i === 1) {
+                    continue;
+                }
+
+                break;
+            }
+
+            frames.push(i);
+        }
+
+        return frames;
+    }
+
+    function renderNovelFrame() {
+        const frameNumber = state.availableNovelFrames[state.novelFrameIndex - 1];
+
+        if (!frameNumber) {
+            startGame();
+            return;
+        }
+
+        updateNovelSources();
+        els.novelCounter.textContent = `${state.novelFrameIndex}/${state.availableNovelFrames.length}`;
+        playFrameAudio(frameNumber);
+    }
+
+    function updateNovelSources() {
+        if (!els.novelScreen.classList.contains('screen--active') || !state.availableNovelFrames.length) {
+            return;
+        }
+
+        const frameNumber = state.availableNovelFrames[state.novelFrameIndex - 1];
+        const folder = getOrientationFolder();
+        const fallbackFolder = folder === 'vertical' ? 'horizontal' : 'vertical';
+
+        els.novelImage.src = `img/${folder}/${frameNumber}.png`;
+        els.novelSource.srcset = `img/vertical/${frameNumber}.png`;
+
+        els.novelImage.onerror = () => {
+            els.novelImage.onerror = null;
+            els.novelImage.src = `img/${fallbackFolder}/${frameNumber}.png`;
+        };
+    }
+
+    function getAudioCandidates(frameNumber) {
+        return [
+            `audio/${frameNumber}.mp3`,
+            `audio/${frameNumber}.wav`
+        ];
+    }
+
+    function playFrameAudio(frameNumber) {
+        stopFrameAudio();
+
+        const candidates = getAudioCandidates(frameNumber);
+        let index = 0;
+
+        function tryNext() {
+            if (index >= candidates.length) {
+                return;
+            }
+
+            const audio = new Audio(candidates[index]);
+            state.activeAudio = audio;
+            index += 1;
+
+            audio.addEventListener('error', tryNext, { once: true });
+            audio.play().catch(() => { });
+        }
+
+        tryNext();
+    }
+
+    function stopFrameAudio() {
+        if (!state.activeAudio) {
+            return;
+        }
+
+        state.activeAudio.pause();
+        state.activeAudio.currentTime = 0;
+        state.activeAudio = null;
+    }
+
+    function nextNovelFrame() {
+        state.novelFrameIndex += 1;
+
+        if (state.novelFrameIndex > state.availableNovelFrames.length) {
+            stopFrameAudio();
+            startGame();
+            return;
+        }
+
+        renderNovelFrame();
+    }
+
+    function startGame() {
+        stopFrameAudio();
+
+        state.levelIndex = 0;
+        state.errors = 0;
+        state.correctAnswers = 0;
+        state.incorrectAnswers = 0;
+        state.resultSaved = false;
+        state.startTime = Date.now();
+        state.paintMode = false;
+        state.levelCompleted = false;
+
+        els.finishCard.classList.remove('is-visible');
+        els.finishCard.setAttribute('aria-hidden', 'true');
+
+        showScreen(els.gameScreen);
+        loadLevel(0);
+    }
+
     function loadLevel(levelIndex) {
-        if (levelIndex >= GAME_LEVELS.length) {
+        if (levelIndex >= LEVELS.length) {
             finishGame();
             return;
         }
 
-        const levelData = GAME_LEVELS[levelIndex];
+        state.levelIndex = levelIndex;
+        state.errors = 0;
+        state.paintMode = false;
+        state.levelCompleted = false;
 
-        currentLevel = levelIndex;
-        errors = 0;
+        els.levelPill.textContent = `${levelIndex + 1}/${LEVELS.length}`;
 
-        wordsContainer.innerHTML = '';
-        createWordElements(levelData.word);
+        els.wordsContainer.innerHTML = '';
+        els.lettersContainer.innerHTML = '';
 
-        lettersContainer.innerHTML = '';
+        els.finishCard.classList.remove('is-visible');
+        els.finishCard.setAttribute('aria-hidden', 'true');
 
-        const allLetters = getRequiredLetters(levelData.word)
-            .concat(levelData.extraLetters)
-            .sort(() => Math.random() - 0.5);
+        createWord(LEVELS[levelIndex].word);
+        createLetters(prepareLetters(LEVELS[levelIndex]));
 
-        createLetterElements(allLetters);
+        els.resetBtn.textContent = 'Сбросить';
 
-        result.textContent = `Уровень ${levelIndex + 1}: Собери слово "${levelData.word}". Ошибок: ${errors}/${maxErrors}`;
-        result.style.color = "#4CAF50";
-
-        checkBtn.style.display = 'block';
-        checkBtn.removeAttribute('disabled');
-
-        redPaint.style.display = 'none';
-
-        resetBtn.onclick = null;
-        resetBtn.textContent = 'Сбросить';
-
-        attachDragListeners();
+        hidePaintTool();
     }
 
-    // --- ЗАВЕРШЕНИЕ ИГРЫ ---
+    function prepareLetters(level) {
+        const required = getRequiredVowels(level.word);
+        const letters = required.concat(level.extraLetters);
+
+        return letters.sort(() => Math.random() - 0.5);
+    }
+
+    function getRequiredVowels(word) {
+        return word
+            .toUpperCase()
+            .split('')
+            .filter(char => VOWELS.includes(char));
+    }
+
+    function createWord(word) {
+        const wordEl = document.createElement('div');
+
+        wordEl.className = 'word';
+        wordEl.id = 'currentWord';
+
+        word.toUpperCase().split('').forEach(char => {
+            const charEl = document.createElement('div');
+
+            charEl.className = 'char';
+
+            if (VOWELS.includes(char)) {
+                charEl.classList.add('placeholder');
+                charEl.textContent = '_';
+                charEl.dataset.correctChar = char;
+            } else {
+                charEl.classList.add('static');
+                charEl.textContent = char;
+            }
+
+            wordEl.appendChild(charEl);
+        });
+
+        els.wordsContainer.appendChild(wordEl);
+    }
+
+    function createLetters(letters) {
+        letters.forEach((char, index) => {
+            const letter = document.createElement('button');
+
+            letter.type = 'button';
+            letter.className = 'letter';
+            letter.textContent = char;
+            letter.dataset.dragType = 'letter';
+            letter.dataset.letter = char;
+            letter.dataset.letterId = `letter-${index}-${Math.random().toString(36).slice(2)}`;
+            letter.setAttribute('aria-label', `Буква ${char}`);
+
+            letter.addEventListener('pointerdown', startDrag);
+
+            els.lettersContainer.appendChild(letter);
+        });
+    }
+
+    function startDrag(event) {
+        const source = event.currentTarget;
+        const dragType = source.dataset.dragType;
+
+        if (source.disabled || source.classList.contains('is-hidden') || state.levelCompleted) {
+            return;
+        }
+
+        if (dragType === 'paint' && !state.paintMode) {
+            return;
+        }
+
+        event.preventDefault();
+
+        const ghost = document.createElement('div');
+
+        ghost.className = dragType === 'paint'
+            ? 'drag-ghost drag-ghost--paint'
+            : 'drag-ghost';
+
+        ghost.textContent = dragType === 'paint' ? '🖌️' : source.dataset.letter;
+
+        document.body.appendChild(ghost);
+
+        state.drag = {
+            source,
+            ghost,
+            type: dragType,
+            letter: source.dataset.letter || '',
+            sourceId: source.dataset.letterId || '',
+            lastTarget: null,
+            pointerId: event.pointerId
+        };
+
+        source.classList.add('is-dragging');
+
+        moveGhost(event.clientX, event.clientY);
+
+        window.addEventListener('pointermove', onPointerMove, { passive: false });
+        window.addEventListener('pointerup', onPointerUp, { passive: false });
+        window.addEventListener('pointercancel', cancelDrag, { passive: false });
+    }
+
+    function onPointerMove(event) {
+        if (!state.drag) {
+            return;
+        }
+
+        event.preventDefault();
+
+        moveGhost(event.clientX, event.clientY);
+        markDropTarget(event.clientX, event.clientY);
+    }
+
+    function onPointerUp(event) {
+        if (!state.drag) {
+            return;
+        }
+
+        event.preventDefault();
+
+        const target = getDropTarget(event.clientX, event.clientY);
+
+        clearDropTarget();
+
+        if (state.drag.type === 'letter') {
+            dropLetter(target);
+        }
+
+        if (state.drag.type === 'paint') {
+            dropPaint(target);
+        }
+
+        removeGhost();
+    }
+
+    function cancelDrag(event) {
+        if (event) {
+            event.preventDefault();
+        }
+
+        if (!state.drag) {
+            return;
+        }
+
+        clearDropTarget();
+        removeGhost();
+    }
+
+    function moveGhost(x, y) {
+        if (!state.drag || !state.drag.ghost) {
+            return;
+        }
+
+        state.drag.ghost.style.left = `${x}px`;
+        state.drag.ghost.style.top = `${y}px`;
+    }
+
+    function getDropTarget(x, y) {
+        if (!state.drag || !state.drag.ghost) {
+            return null;
+        }
+
+        state.drag.ghost.style.visibility = 'hidden';
+
+        const element = document.elementFromPoint(x, y);
+        const target = element ? element.closest('.char') : null;
+
+        state.drag.ghost.style.visibility = 'visible';
+
+        return target;
+    }
+
+    function markDropTarget(x, y) {
+        if (!state.drag) {
+            return;
+        }
+
+        const target = getDropTarget(x, y);
+
+        if (target === state.drag.lastTarget) {
+            return;
+        }
+
+        clearDropTarget();
+
+        if (
+            target &&
+            state.drag.type === 'letter' &&
+            target.classList.contains('placeholder')
+        ) {
+            target.classList.add('drop-target');
+            state.drag.lastTarget = target;
+            return;
+        }
+
+        if (
+            target &&
+            state.drag.type === 'paint' &&
+            target.classList.contains('filled') &&
+            !target.classList.contains('red-vowel')
+        ) {
+            target.classList.add('drop-target');
+            state.drag.lastTarget = target;
+        }
+    }
+
+    function clearDropTarget() {
+        document.querySelectorAll('.drop-target').forEach(el => {
+            el.classList.remove('drop-target');
+        });
+
+        if (state.drag) {
+            state.drag.lastTarget = null;
+        }
+    }
+
+    function removeGhost() {
+        if (!state.drag) {
+            return;
+        }
+
+        window.removeEventListener('pointermove', onPointerMove);
+        window.removeEventListener('pointerup', onPointerUp);
+        window.removeEventListener('pointercancel', cancelDrag);
+
+        state.drag.source.classList.remove('is-dragging');
+
+        if (state.drag.ghost) {
+            state.drag.ghost.remove();
+        }
+
+        state.drag = null;
+    }
+
+    function dropLetter(target) {
+        if (state.paintMode || state.levelCompleted) {
+            return;
+        }
+
+        if (!target) {
+            showToast('Перетащи букву в пустое место.', 'error');
+            return;
+        }
+
+        if (!target.classList.contains('placeholder')) {
+            showToast('Место занято.', 'error');
+            return;
+        }
+
+        target.textContent = state.drag.letter;
+        target.classList.remove('placeholder', 'error');
+        target.classList.add('filled');
+        target.dataset.originalId = state.drag.sourceId;
+
+        state.drag.source.classList.add('is-hidden');
+
+        checkWordAutomatically();
+    }
+
+    function checkWordAutomatically() {
+        const level = LEVELS[state.levelIndex];
+        const requiredCount = getRequiredVowels(level.word).length;
+        const filled = [...document.querySelectorAll('#currentWord .filled')];
+
+        if (filled.length < requiredCount) {
+            return;
+        }
+
+        let isCorrect = true;
+
+        filled.forEach(char => {
+            if (char.textContent !== char.dataset.correctChar) {
+                isCorrect = false;
+                char.classList.add('error');
+            } else {
+                char.classList.remove('error');
+            }
+        });
+
+        if (isCorrect) {
+            openPaintMode();
+            return;
+        }
+
+        state.errors += 1;
+        state.incorrectAnswers += 1;
+
+        if (state.errors >= MAX_ERRORS) {
+            showToast('Попытки закончились.', 'error');
+
+            setTimeout(() => {
+                els.resetBtn.textContent = state.levelIndex + 1 >= LEVELS.length ? 'Завершить' : 'Дальше';
+            }, 450);
+
+            return;
+        }
+
+        showToast('Попробуй ещё раз.', 'error');
+
+        setTimeout(resetWordOnly, 450);
+    }
+
+    function openPaintMode() {
+        state.paintMode = true;
+
+        showSuccessPop();
+        showPaintTool();
+    }
+
+    function showPaintTool() {
+        els.redPaint.disabled = false;
+        els.paintPanel.classList.add('is-active');
+        els.paintPanel.setAttribute('aria-hidden', 'false');
+    }
+
+    function hidePaintTool() {
+        state.paintMode = false;
+
+        els.redPaint.disabled = true;
+        els.paintPanel.classList.remove('is-active');
+        els.paintPanel.setAttribute('aria-hidden', 'true');
+    }
+
+    function dropPaint(target) {
+        if (!target || !state.paintMode || state.levelCompleted) {
+            return;
+        }
+
+        if (target.classList.contains('filled') && VOWELS.includes(target.textContent.toUpperCase())) {
+            target.classList.add('red-vowel');
+            checkAllPainted();
+        }
+    }
+
+    function checkAllPainted() {
+        const level = LEVELS[state.levelIndex];
+        const requiredCount = getRequiredVowels(level.word).length;
+        const painted = document.querySelectorAll('#currentWord .filled.red-vowel').length;
+
+        if (painted < requiredCount) {
+            return;
+        }
+
+        state.correctAnswers += 1;
+        state.levelCompleted = true;
+
+        hidePaintTool();
+
+        els.resetBtn.textContent = state.levelIndex + 1 >= LEVELS.length ? 'Завершить' : 'Дальше';
+
+        showToast('Готово!');
+    }
+
+    function resetCurrentLevel() {
+        const text = els.resetBtn.textContent.trim();
+
+        if (text === 'Дальше') {
+            loadLevel(state.levelIndex + 1);
+            return;
+        }
+
+        if (text === 'Завершить') {
+            finishGame();
+            return;
+        }
+
+        loadLevel(state.levelIndex);
+    }
+
+    function resetWordOnly() {
+        document.querySelectorAll('#currentWord .char:not(.static)').forEach(char => {
+            const originalId = char.dataset.originalId;
+            const originalLetter = originalId
+                ? [...document.querySelectorAll('.letter')].find(letter => letter.dataset.letterId === originalId)
+                : null;
+
+            if (originalLetter) {
+                originalLetter.classList.remove('is-hidden');
+            }
+
+            char.textContent = '_';
+            char.classList.remove('filled', 'red-vowel', 'error');
+            char.classList.add('placeholder');
+
+            delete char.dataset.originalId;
+        });
+    }
+
+    function getRandomSuccessImageIndex() {
+        let randomIndex = Math.floor(Math.random() * SUCCESS_IMAGES_COUNT) + 1;
+
+        if (SUCCESS_IMAGES_COUNT > 1) {
+            while (randomIndex === state.lastSuccessImageIndex) {
+                randomIndex = Math.floor(Math.random() * SUCCESS_IMAGES_COUNT) + 1;
+            }
+        }
+
+        state.lastSuccessImageIndex = randomIndex;
+
+        return randomIndex;
+    }
+
+    function showSuccessPop() {
+        if (!els.successPop || !els.successPopImage) {
+            return;
+        }
+
+        const randomIndex = getRandomSuccessImageIndex();
+
+        els.successPopImage.src = `${SUCCESS_IMAGES_PATH}${randomIndex}.png`;
+
+        els.successPop.classList.remove('is-visible');
+
+        void els.successPop.offsetWidth;
+
+        els.successPop.classList.add('is-visible');
+
+        setTimeout(() => {
+            els.successPop.classList.remove('is-visible');
+        }, 1100);
+    }
+
     async function finishGame() {
         const timeSpent = getTimeSpent();
 
-        result.textContent = "🏆 Ты прошёл все уровни! Сохраняем результат...";
-        result.style.color = "gold";
+        els.wordsContainer.innerHTML = '';
+        els.lettersContainer.innerHTML = '';
+        hidePaintTool();
 
-        checkBtn.style.display = 'none';
-        redPaint.style.display = 'none';
+        els.finishText.textContent = `Правильно: ${state.correctAnswers}. Ошибок: ${state.incorrectAnswers}.`;
 
-        lettersContainer.innerHTML = '';
-        wordsContainer.innerHTML = '';
-
-        resetBtn.textContent = 'Начать заново';
-        resetBtn.onclick = () => startNewGame();
+        els.finishCard.classList.add('is-visible');
+        els.finishCard.setAttribute('aria-hidden', 'false');
 
         await saveGameResult(timeSpent);
     }
 
-    // --- ПОДСЧЁТ ВРЕМЕНИ В СЕКУНДАХ ---
     function getTimeSpent() {
-        if (!startTime) {
+        if (!state.startTime) {
             return 0;
         }
 
-        return Math.floor((Date.now() - startTime) / 1000);
+        return Math.max(0, Math.floor((Date.now() - state.startTime) / 1000));
     }
 
-    // --- СОХРАНЕНИЕ РЕЗУЛЬТАТА В БД ---
     async function saveGameResult(timeSpent) {
-        if (resultSaved) {
+        if (state.resultSaved) {
             return;
         }
 
-        resultSaved = true;
+        state.resultSaved = true;
 
         try {
             const response = await fetch('../../save_result.php', {
@@ -144,8 +752,8 @@ document.addEventListener("DOMContentLoaded", function() {
                 credentials: 'same-origin',
                 body: JSON.stringify({
                     game_id: GAME_ID,
-                    correct_answers: correctAnswers,
-                    incorrect_answers: incorrectAnswers,
+                    correct_answers: state.correctAnswers,
+                    incorrect_answers: state.incorrectAnswers,
                     time_spent: timeSpent
                 })
             });
@@ -153,277 +761,33 @@ document.addEventListener("DOMContentLoaded", function() {
             const data = await response.json();
 
             if (data.success) {
-                result.textContent =
-                    `🏆 Игра завершена! Результат сохранён. Правильных ответов: ${correctAnswers}, ошибок: ${incorrectAnswers}, время: ${timeSpent} сек.`;
-                result.style.color = "gold";
+                showToast('Результат игры сохранён.');
             } else {
-                result.textContent =
-                    `🏆 Игра завершена, но результат не сохранён: ${data.message}`;
-                result.style.color = "orange";
+                showToast(data.message || 'Результат не сохранён.', 'error');
             }
         } catch (error) {
-            result.textContent =
-                "🏆 Игра завершена, но произошла ошибка при сохранении результата.";
-            result.style.color = "orange";
+            showToast('Не удалось сохранить результат.', 'error');
         }
     }
 
-    // --- ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ---
-    function getRequiredLetters(word) {
-        const uniqueVowels = new Set();
-        const vowels = ['А', 'Е', 'Ё', 'И', 'О', 'У', 'Ы', 'Э', 'Ю', 'Я'];
+    function showToast(message, type = 'success') {
+        const toast = document.createElement('div');
 
-        for (const char of word.toUpperCase()) {
-            if (vowels.includes(char)) {
-                uniqueVowels.add(char);
-            }
-        }
+        toast.className = `toast toast--${type}`;
+        toast.textContent = message;
 
-        return Array.from(uniqueVowels);
-    }
+        els.toastContainer.appendChild(toast);
 
-    function createWordElements(word) {
-        const wordDiv = document.createElement('div');
-
-        wordDiv.className = 'word';
-        wordDiv.id = 'current-word';
-
-        const vowels = ['А', 'Е', 'Ё', 'И', 'О', 'У', 'Ы', 'Э', 'Ю', 'Я'];
-
-        for (const char of word.toUpperCase()) {
-            const span = document.createElement('span');
-
-            span.className = 'char';
-
-            if (vowels.includes(char)) {
-                span.classList.add('placeholder');
-                span.textContent = '_';
-                span.setAttribute('data-correct-char', char);
-            } else {
-                span.classList.add('static');
-                span.textContent = char;
-            }
-
-            wordDiv.appendChild(span);
-        }
-
-        wordsContainer.appendChild(wordDiv);
-    }
-
-    function createLetterElements(letters) {
-        letters.forEach((char, index) => {
-            const letterDiv = document.createElement('div');
-
-            letterDiv.className = 'letter';
-            letterDiv.id = `letter-${char}-${index}_${Math.random().toString(36).substring(7)}`;
-            letterDiv.textContent = char;
-            letterDiv.setAttribute('draggable', 'true');
-
-            lettersContainer.appendChild(letterDiv);
-        });
-    }
-
-    function attachDragListeners() {
-        document.querySelectorAll(".letter").forEach(letter => {
-            letter.removeEventListener('dragstart', handleDragStart);
-            letter.addEventListener("dragstart", handleDragStart);
+        requestAnimationFrame(() => {
+            toast.classList.add('is-visible');
         });
 
-        redPaint.removeEventListener('dragstart', handlePaintDragStart);
-        redPaint.addEventListener("dragstart", handlePaintDragStart);
+        setTimeout(() => {
+            toast.classList.remove('is-visible');
+
+            setTimeout(() => {
+                toast.remove();
+            }, 240);
+        }, 3000);
     }
-
-    function handleDragStart(event) {
-        event.dataTransfer.setData("letter-id", event.target.id);
-        event.dataTransfer.setData("letter-content", event.target.textContent);
-        event.dataTransfer.setData("drag-type", "letter");
-    }
-
-    function handlePaintDragStart(event) {
-        event.dataTransfer.setData("drag-type", "paint");
-    }
-
-    // --- ОБРАБОТКА DRAG AND DROP ---
-    wordsContainer.addEventListener("dragover", (event) => {
-        event.preventDefault();
-
-        const target = event.target.closest(".char");
-        const dragType = event.dataTransfer.getData("drag-type");
-
-        if (target && target.classList.contains("placeholder") && dragType === "letter") {
-            target.classList.add("drag-over");
-        }
-
-        if (target && dragType === "paint") {
-            event.preventDefault();
-        }
-    });
-
-    wordsContainer.addEventListener("dragleave", () => {
-        document.querySelectorAll(".char.drag-over").forEach(char => {
-            char.classList.remove("drag-over");
-        });
-    });
-
-    wordsContainer.addEventListener("drop", (event) => {
-        event.preventDefault();
-
-        const targetChar = event.target.closest(".char");
-        const dragType = event.dataTransfer.getData("drag-type");
-
-        document.querySelectorAll(".char.drag-over").forEach(char => {
-            char.classList.remove("drag-over");
-        });
-
-        if (!targetChar) {
-            return;
-        }
-
-        if (dragType === "letter") {
-            if (!targetChar.classList.contains("placeholder")) {
-                result.textContent = "Это место уже занято!";
-                setTimeout(() => result.textContent = "", 1500);
-                return;
-            }
-
-            const letterId = event.dataTransfer.getData("letter-id");
-            const letterContent = event.dataTransfer.getData("letter-content");
-
-            targetChar.textContent = letterContent;
-            targetChar.classList.remove("placeholder");
-            targetChar.classList.add("filled");
-            targetChar.setAttribute("data-original-id", letterId);
-
-            const letterElement = document.getElementById(letterId);
-
-            if (letterElement) {
-                letterElement.style.display = "none";
-            }
-        }
-
-        if (dragType === "paint") {
-            if (!checkBtn.hasAttribute('disabled')) {
-                result.textContent = "Сначала собери слово и нажми 'Проверить'!";
-                setTimeout(() => result.textContent = "", 2000);
-                return;
-            }
-
-            if (targetChar.classList.contains("filled")) {
-                if (targetChar.textContent.match(/[АЕЁИОУЫЭЮЯ]/i)) {
-                    targetChar.classList.add("red-vowel");
-                    checkIfAllPainted();
-                }
-            } else if (targetChar.classList.contains("static")) {
-                result.textContent = "Нельзя красить согласные буквы!";
-                setTimeout(() => result.textContent = "", 1500);
-            }
-        }
-    });
-
-    // --- ПРОВЕРКА СЛОВА ---
-    checkBtn.addEventListener("click", () => {
-        const wordSpans = document.querySelectorAll("#current-word .char");
-        const levelData = GAME_LEVELS[currentLevel];
-
-        let isCorrect = true;
-
-        const filledVowels = document.querySelectorAll(".filled");
-
-        if (filledVowels.length < levelData.correctVowels) {
-            result.textContent = "Сначала заполни все пропуски!";
-            result.style.color = "orange";
-            return;
-        }
-
-        wordSpans.forEach(span => {
-            if (span.classList.contains('filled')) {
-                const correctChar = span.getAttribute("data-correct-char");
-
-                if (span.textContent !== correctChar) {
-                    isCorrect = false;
-                    span.classList.add('error');
-                } else {
-                    span.classList.remove('error');
-                }
-            }
-        });
-
-        if (isCorrect) {
-            result.textContent = "✅ Верно! Теперь покрась гласные в красный цвет.";
-            result.style.color = "#4CAF50";
-
-            checkBtn.setAttribute('disabled', 'true');
-            redPaint.style.display = 'flex';
-        } else {
-            errors++;
-            incorrectAnswers++;
-
-            if (errors >= maxErrors) {
-                result.textContent = `🚫 Уровень провален! Правильное слово было "${levelData.word}".`;
-                result.style.color = "red";
-
-                checkBtn.style.display = 'none';
-
-                resetBtn.textContent = 'Следующий уровень';
-                resetBtn.onclick = () => loadLevel(currentLevel + 1);
-            } else {
-                resetWordAndLetters();
-            }
-        }
-    });
-
-    // --- ПРОВЕРКА ПОКРАСКИ И ПРОХОЖДЕНИЕ УРОВНЯ ---
-    function checkIfAllPainted() {
-        const levelData = GAME_LEVELS[currentLevel];
-        const paintedVowels = document.querySelectorAll(".filled.red-vowel");
-
-        if (paintedVowels.length === levelData.correctVowels) {
-            correctAnswers++;
-
-            result.textContent = "👍 Гласные покрашены! Уровень пройден! Нажми 'Следующий уровень'.";
-            result.style.color = "green";
-
-            resetBtn.textContent = 'Следующий уровень';
-            resetBtn.onclick = () => loadLevel(currentLevel + 1);
-
-            checkBtn.style.display = 'none';
-        }
-    }
-
-    // --- СБРОС СЛОВА И ВОЗВРАТ БУКВ ---
-    function resetWordAndLetters() {
-        document.querySelectorAll("#current-word .char:not(.static)").forEach(charSpan => {
-            if (charSpan.classList.contains('filled') || charSpan.getAttribute("data-original-id")) {
-                const letterId = charSpan.getAttribute("data-original-id");
-                const letterElement = document.getElementById(letterId);
-
-                if (letterElement) {
-                    letterElement.style.display = "flex";
-                }
-            }
-
-            charSpan.textContent = '_';
-            charSpan.classList.remove("filled", "red-vowel", "drag-over", "error");
-            charSpan.classList.add("placeholder");
-            charSpan.removeAttribute("data-original-id");
-        });
-
-        result.textContent = `❌ Неверно. Попробуй снова. Ошибок: ${errors}/${maxErrors}`;
-        result.style.color = "red";
-    }
-
-    // --- ОБРАБОТЧИК КНОПКИ СБРОСА ---
-    resetBtn.addEventListener("click", () => {
-        if (resetBtn.onclick && resetBtn.textContent === 'Следующий уровень') {
-            resetBtn.onclick();
-            return;
-        }
-
-        if (resetBtn.onclick && resetBtn.textContent === 'Начать заново') {
-            resetBtn.onclick();
-            return;
-        }
-
-        loadLevel(currentLevel);
-    });
-});
+})();
