@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="ru">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Лопа — Кто издаёт звук?</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <main class="game-root" id="gameRoot">
+    <section class="start-screen screen screen--active" id="startScreen" aria-label="Начало игры">
+      <button class="start-btn" id="startBtn" type="button">Начать</button>
+    </section>
+
+    <section class="novel-screen screen" id="novelScreen" aria-label="Предыстория игры">
+      <button class="novel-frame" id="novelFrame" type="button" aria-label="Следующий кадр истории">
+        <picture>
+          <source id="novelSource" srcset="" media="(orientation: portrait)" />
+          <img id="novelImage" src="" alt="Кадр истории" />
+        </picture>
+
+        <span class="novel-counter" id="novelCounter">1</span>
+        <span class="novel-hint">Нажми, чтобы продолжить</span>
+      </button>
+    </section>
+
+    <section class="game-screen screen" id="gameScreen" aria-label="Игровое поле">
+      <div class="game-bg-shape game-bg-shape--one"></div>
+      <div class="game-bg-shape game-bg-shape--two"></div>
+
+      <header class="game-header">
+        <div>
+          <p class="eyebrow">Игра 2</p>
+          <h1>Угадай животное</h1>
+        </div>
+
+        <div class="level-pill" id="levelPill">1/6</div>
+      </header>
+
+      <button class="magic-card" id="magicCard" type="button" aria-label="Послушать звук животного">
+        <span class="magic-card__glow"></span>
+
+        <span class="magic-card__image" id="imageWrap">
+          <span>Нет изображения</span>
+        </span>
+
+        <span class="magic-card__content">
+          <span class="magic-card__label">Нажми на карточку</span>
+          <span class="magic-card__hint" id="hintText">—</span>
+        </span>
+
+        <span class="magic-card__sound">🔊</span>
+      </button>
+
+      <section class="word-card" aria-label="Сбор слова">
+        <div class="slots" id="slots"></div>
+        <div class="pool" id="pool"></div>
+      </section>
+
+      <div class="finish-card" id="finishCard" aria-hidden="true">
+        <div class="finish-card__icon">🏆</div>
+        <h2>Готово!</h2>
+        <p id="finishText">Ты собрал все слова.</p>
+        <button class="game-btn game-btn--primary" id="btnRestart" type="button">Заново</button>
+      </div>
+    </section>
+
+    <div class="success-pop" id="successPop" aria-hidden="true">
+      <img id="successPopImage" src="../success_img/1.png" alt="" />
+    </div>
+
+    <div class="toast-container" id="toastContainer" aria-live="polite" aria-atomic="true"></div>
+  </main>
+
+  <script src="game.js?v=102"></script>
+</body>
+
+</html>
