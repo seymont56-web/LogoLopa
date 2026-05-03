@@ -5,7 +5,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Лопа — Гласная или согласная</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css?v=3" />
 </head>
 
 <body>
@@ -41,7 +41,13 @@
 
       <section class="letter-card" aria-label="Текущая буква">
         <div class="letter-card__label"></div>
+
         <div class="letter-display" id="letterDisplay">—</div>
+
+        <div class="round-timer" id="roundTimer" aria-hidden="true">
+          <div class="round-timer__fill" id="roundTimerFill"></div>
+        </div>
+
         <div class="feedback" id="feedback"></div>
       </section>
 
@@ -59,6 +65,10 @@
       </div>
     </section>
 
+    <div class="countdown-overlay" id="countdownOverlay" aria-hidden="true">
+      <div class="countdown-number" id="countdownNumber">3</div>
+    </div>
+
     <div class="success-pop" id="successPop" aria-hidden="true">
       <img id="successPopImage" src="../success_img/1.png" alt="" />
     </div>
@@ -66,7 +76,7 @@
     <div class="toast-container" id="toastContainer" aria-live="polite" aria-atomic="true"></div>
   </main>
 
-  <script src="game.js?v=102"></script>
+  <script src="game.js?v=103"></script>
 </body>
 
 </html>

@@ -1442,7 +1442,7 @@ function game_preview_path(string $gamePath): string
 
               <?php if ($mustChange === 1): ?>
                 <div class="student-pass-reminder">
-                  У вас установлен временный пароль. Сменить его можно в профиле.
+                  У вас установлен временный пароль. Сменить его можно в&nbsp;профиле.
                 </div>
               <?php endif; ?>
             </div>

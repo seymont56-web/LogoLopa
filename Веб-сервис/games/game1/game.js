@@ -25,12 +25,16 @@
             extraLetters: ['А', 'Е', 'О', 'Я']
         },
         {
-            word: 'ЛИСА',
-            extraLetters: ['А', 'О', 'У', 'Ы']
+            word: 'ДОМ',
+            extraLetters: ['А', 'Е', 'У']
         },
         {
-            word: 'МУКА',
-            extraLetters: ['Е', 'И', 'О', 'Я']
+            word: 'МЯЧ',
+            extraLetters: ['И', 'О', 'А']
+        },
+        {
+            word: 'МИР',
+            extraLetters: ['А', 'Е', 'У', 'Ы']
         }
     ];
 

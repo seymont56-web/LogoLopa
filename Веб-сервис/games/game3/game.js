@@ -16,6 +16,7 @@
 
     const ROUND_TIME_MS = 3000;
     const NEXT_DELAY_MS = 700;
+    const COUNTDOWN_STEP_MS = 780;
 
     const els = {
         startScreen: document.getElementById('startScreen'),
@@ -32,6 +33,12 @@
         letterDisplay: document.getElementById('letterDisplay'),
         feedback: document.getElementById('feedback'),
         vowelBtn: document.getElementById('vowelBtn'),
+
+        roundTimer: document.getElementById('roundTimer'),
+        roundTimerFill: document.getElementById('roundTimerFill'),
+
+        countdownOverlay: document.getElementById('countdownOverlay'),
+        countdownNumber: document.getElementById('countdownNumber'),
 
         finishCard: document.getElementById('finishCard'),
         finishText: document.getElementById('finishText'),
@@ -57,6 +64,7 @@
 
         roundTimer: null,
         nextTimer: null,
+        countdownTimer: null,
         roundToken: 0,
 
         novelFrameIndex: 1,
@@ -138,6 +146,9 @@
         state.roundActive = false;
         state.index = 0;
         state.currentLetter = '';
+
+        hideCountdown();
+        resetRoundTimerSlider();
 
         showScreen(els.novelScreen);
 
@@ -302,7 +313,7 @@
             window.parent.postMessage({
                 type: 'LOGOPA_GAME_READY'
             }, '*');
-        } catch (err) {}
+        } catch (err) { }
     }
 
     function playFrameAudio(frameNumber) {
@@ -323,7 +334,7 @@
 
             audio.addEventListener('error', tryNext, { once: true });
 
-            audio.play().catch(function () {});
+            audio.play().catch(function () { });
         }
 
         tryNext();
@@ -337,7 +348,7 @@
         try {
             state.activeAudio.pause();
             state.activeAudio.currentTime = 0;
-        } catch (err) {}
+        } catch (err) { }
 
         state.activeAudio = null;
     }
@@ -376,6 +387,9 @@
 
         state.roundToken += 1;
 
+        hideCountdown();
+        resetRoundTimerSlider();
+
         if (els.finishCard) {
             els.finishCard.classList.remove('is-visible');
             els.finishCard.setAttribute('aria-hidden', 'true');
@@ -389,16 +403,78 @@
         clearFeedback();
 
         if (els.vowelBtn) {
-            els.vowelBtn.disabled = false;
+            els.vowelBtn.disabled = true;
         }
 
         showScreen(els.gameScreen);
         updateRoundPill();
-        startRound();
+
+        startFirstRoundCountdown();
+    }
+
+    function startFirstRoundCountdown() {
+        clearTimers();
+        resetRoundTimerSlider();
+
+        state.roundActive = false;
+        state.roundToken += 1;
+
+        if (els.vowelBtn) {
+            els.vowelBtn.disabled = true;
+        }
+
+        if (!els.countdownOverlay || !els.countdownNumber) {
+            startRound();
+            return;
+        }
+
+        els.countdownOverlay.classList.add('is-visible');
+        els.countdownOverlay.setAttribute('aria-hidden', 'false');
+
+        const numbers = ['3', '2', '1'];
+        let index = 0;
+
+        function showNextNumber() {
+            if (state.finished) {
+                hideCountdown();
+                return;
+            }
+
+            if (index >= numbers.length) {
+                hideCountdown();
+                startRound();
+                return;
+            }
+
+            els.countdownNumber.textContent = numbers[index];
+            els.countdownNumber.classList.remove('is-pop');
+
+            void els.countdownNumber.offsetWidth;
+
+            els.countdownNumber.classList.add('is-pop');
+
+            index += 1;
+
+            state.countdownTimer = setTimeout(showNextNumber, COUNTDOWN_STEP_MS);
+        }
+
+        showNextNumber();
+    }
+
+    function hideCountdown() {
+        if (els.countdownOverlay) {
+            els.countdownOverlay.classList.remove('is-visible');
+            els.countdownOverlay.setAttribute('aria-hidden', 'true');
+        }
+
+        if (els.countdownNumber) {
+            els.countdownNumber.classList.remove('is-pop');
+        }
     }
 
     function startRound() {
         clearTimers();
+        resetRoundTimerSlider();
 
         if (state.finished) {
             return;
@@ -428,6 +504,7 @@
         }
 
         updateRoundPill();
+        startRoundTimerSlider();
 
         state.roundTimer = setTimeout(function () {
             if (token !== state.roundToken) {
@@ -440,6 +517,47 @@
 
             completeRoundByWaiting();
         }, ROUND_TIME_MS);
+    }
+
+    function startRoundTimerSlider() {
+        if (!els.roundTimerFill) {
+            return;
+        }
+
+        els.roundTimerFill.classList.remove('is-running');
+        els.roundTimerFill.style.animationDuration = '';
+        els.roundTimerFill.style.transform = 'scaleX(1)';
+
+        void els.roundTimerFill.offsetWidth;
+
+        els.roundTimerFill.style.animationDuration = `${ROUND_TIME_MS}ms`;
+        els.roundTimerFill.classList.add('is-running');
+    }
+
+    function stopRoundTimerSlider() {
+        if (!els.roundTimerFill) {
+            return;
+        }
+
+        const computed = window.getComputedStyle(els.roundTimerFill);
+        const currentTransform = computed.transform;
+
+        els.roundTimerFill.classList.remove('is-running');
+        els.roundTimerFill.style.animationDuration = '';
+
+        if (currentTransform && currentTransform !== 'none') {
+            els.roundTimerFill.style.transform = currentTransform;
+        }
+    }
+
+    function resetRoundTimerSlider() {
+        if (!els.roundTimerFill) {
+            return;
+        }
+
+        els.roundTimerFill.classList.remove('is-running');
+        els.roundTimerFill.style.animationDuration = '';
+        els.roundTimerFill.style.transform = 'scaleX(1)';
     }
 
     function handleButtonClick() {
@@ -476,6 +594,7 @@
         }
 
         clearTimers();
+        stopRoundTimerSlider();
 
         state.roundActive = false;
 
@@ -548,10 +667,17 @@
             clearTimeout(state.nextTimer);
             state.nextTimer = null;
         }
+
+        if (state.countdownTimer) {
+            clearTimeout(state.countdownTimer);
+            state.countdownTimer = null;
+        }
     }
 
     function stopAllGameActivity() {
         clearTimers();
+        hideCountdown();
+        resetRoundTimerSlider();
         stopFrameAudio();
 
         state.roundActive = false;
@@ -569,6 +695,8 @@
         }
 
         clearTimers();
+        resetRoundTimerSlider();
+        hideCountdown();
 
         state.finished = true;
         state.roundActive = false;
