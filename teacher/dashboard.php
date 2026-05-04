@@ -44,7 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
       $pdo->commit();
 
-      $ok = "Ученик создан. Логин: $login, временный пароль: $tempPass";
+      $ok = "Ученик создан. Логин: $login";
     } catch (PDOException $e) {
       $pdo->rollBack();
 
@@ -71,7 +71,7 @@ $students = $pdo->query("
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Панель учителя</title>
-  <link rel="stylesheet" href="../assets/style.css">
+  <link rel="stylesheet" href="../assets/style.css?v=2">
   <link rel="icon" href="../favicon.svg" type="image/svg+xml">
 
   <style>
@@ -202,11 +202,9 @@ $students = $pdo->query("
       box-shadow: 0 0 18px rgba(255, 159, 10, .35);
     }
 
-
     .mobile-menu-btn {
       display: none;
     }
-
 
     .teacher-wrap {
       width: calc(100% - clamp(80px, 30vw, 480px));
@@ -230,7 +228,6 @@ $students = $pdo->query("
       text-transform: uppercase;
       font-weight: 900;
     }
-
 
     .teacher-grid {
       width: 100%;
@@ -327,6 +324,48 @@ $students = $pdo->query("
       border-color: #c7c7e8;
     }
 
+    .password-field {
+      width: 100%;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 46px 46px;
+      gap: 8px;
+      align-items: center;
+      margin: clamp(10px, 1vw, 14px) 0;
+    }
+
+    .password-field input {
+      min-width: 0;
+    }
+
+    .password-icon-btn {
+      width: 46px;
+      height: 46px;
+      padding: 0;
+      border: 2px solid #d7d7eb;
+      border-radius: 50%;
+      background: #eeeeff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: inset 0 2px 5px rgba(0, 0, 0, .06);
+      transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+    }
+
+    .password-icon-btn:hover {
+      transform: scale(1.06);
+      border-color: #c7c7e8;
+      background: rgba(255, 255, 255, .65);
+    }
+
+    .password-icon-btn img {
+      width: 20px;
+      height: 20px;
+      display: block;
+      object-fit: contain;
+      pointer-events: none;
+    }
+
     .teacher-btn {
       width: 100%;
       height: clamp(48px, 3.5vw, 56px);
@@ -352,7 +391,6 @@ $students = $pdo->query("
       box-shadow: 0 10px 24px rgba(255, 159, 10, .45);
     }
 
-
     .teacher-message {
       margin-top: 16px;
       padding: 12px 14px;
@@ -373,6 +411,66 @@ $students = $pdo->query("
       color: #b52b2b;
     }
 
+    .toast-container {
+      position: fixed;
+      right: 24px;
+      bottom: 24px;
+      z-index: 3000;
+
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+
+      pointer-events: none;
+    }
+
+    .toast {
+      min-width: 280px;
+      max-width: 380px;
+
+      padding: 14px 18px;
+      border-radius: 18px;
+
+      color: #22213a;
+      background: #eeeeff;
+
+      font-family: 'Montserrat', sans-serif;
+      font-size: 14px;
+      line-height: 1.35;
+
+      box-shadow: 0 14px 30px rgba(0, 0, 0, .28);
+
+      opacity: 0;
+      transform: translateX(24px);
+
+      animation: toastIn .25s ease forwards;
+    }
+
+    .toast.is-hide {
+      animation: toastOut .25s ease forwards;
+    }
+
+    .toast-success {
+      border-left: 6px solid #8ee685;
+    }
+
+    .toast-error {
+      border-left: 6px solid #ef7d87;
+    }
+
+    @keyframes toastIn {
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    @keyframes toastOut {
+      to {
+        opacity: 0;
+        transform: translateX(24px);
+      }
+    }
 
     .teacher-table-wrap {
       width: 100%;
@@ -422,7 +520,6 @@ $students = $pdo->query("
       color: #7b7b92;
     }
 
-
     @media (max-width: 1366px) {
       .teacher-header {
         width: calc(100% - 96px);
@@ -466,7 +563,6 @@ $students = $pdo->query("
         grid-column: 5 / 13;
       }
     }
-
 
     @media (max-width: 1024px) {
       .teacher-header {
@@ -516,7 +612,6 @@ $students = $pdo->query("
         min-height: 420px;
       }
     }
-
 
     @media (max-width: 768px) and (min-width: 521px) {
       .teacher-header {
@@ -577,7 +672,8 @@ $students = $pdo->query("
       .teacher-card:hover,
       .teacher-form input:hover,
       .teacher-form input:focus,
-      .teacher-btn:hover {
+      .teacher-btn:hover,
+      .password-icon-btn:hover {
         transform: none;
       }
 
@@ -592,7 +688,6 @@ $students = $pdo->query("
         text-align: center;
       }
     }
-
 
     @media (max-width: 520px) {
 
@@ -614,7 +709,6 @@ $students = $pdo->query("
         background-position: center center;
         background-size: cover;
       }
-
 
       .teacher-header {
         position: fixed;
@@ -759,7 +853,6 @@ $students = $pdo->query("
         background: rgba(255, 159, 10, .95);
       }
 
-
       .teacher-wrap {
         width: calc(100% - 36px);
 
@@ -818,7 +911,6 @@ $students = $pdo->query("
         text-align: center;
       }
 
-
       .teacher-form p {
         margin: 14px 0;
       }
@@ -832,6 +924,21 @@ $students = $pdo->query("
 
       .teacher-form input:hover,
       .teacher-form input:focus {
+        transform: none;
+      }
+
+      .password-field {
+        grid-template-columns: minmax(0, 1fr) 44px 44px;
+        gap: 7px;
+        margin: 14px 0;
+      }
+
+      .password-icon-btn {
+        width: 44px;
+        height: 44px;
+      }
+
+      .password-icon-btn:hover {
         transform: none;
       }
 
@@ -855,6 +962,25 @@ $students = $pdo->query("
         font-size: 13px;
         line-height: 1.3;
         text-align: center;
+      }
+
+      .toast-container {
+        left: 14px;
+        right: 14px;
+        bottom: 86px;
+
+        gap: 10px;
+      }
+
+      .toast {
+        width: 100%;
+        min-width: 0;
+        max-width: none;
+
+        padding: 13px 16px;
+        border-radius: 18px;
+
+        font-size: 13px;
       }
 
       .teacher-table-wrap {
@@ -964,7 +1090,6 @@ $students = $pdo->query("
       }
     }
 
-
     @media (max-width: 420px) {
       body {
         padding-bottom: 104px;
@@ -1039,6 +1164,21 @@ $students = $pdo->query("
         font-size: 14px;
       }
 
+      .password-field {
+        grid-template-columns: minmax(0, 1fr) 42px 42px;
+        gap: 6px;
+      }
+
+      .password-icon-btn {
+        width: 42px;
+        height: 42px;
+      }
+
+      .password-icon-btn img {
+        width: 18px;
+        height: 18px;
+      }
+
       .teacher-btn {
         height: 48px;
         margin-top: 20px;
@@ -1068,7 +1208,6 @@ $students = $pdo->query("
         font-size: 13px;
       }
     }
-
 
     @media (max-height: 760px) and (min-width: 769px) {
       .teacher-wrap {
@@ -1136,9 +1275,22 @@ $students = $pdo->query("
               <input name="login" placeholder="Логин" required>
             </p>
 
-            <p>
-              <input name="temp_pass" type="password" placeholder="Временный пароль" required>
-            </p>
+            <div class="password-field">
+              <input id="createStudentPassword" type="password" name="temp_pass" placeholder="Временный пароль"
+                autocomplete="new-password" required>
+
+              <button class="password-icon-btn" type="button"
+                onclick="togglePasswordVisibility('createStudentPassword')" aria-label="Показать или скрыть пароль"
+                title="Показать или скрыть пароль">
+                <img src="../assets/img/eye.svg" alt="">
+              </button>
+
+              <button class="password-icon-btn" type="button"
+                onclick="copyPasswordFromInput('createStudentPassword')" aria-label="Скопировать пароль"
+                title="Скопировать пароль">
+                <img src="../assets/img/copy.svg" alt="">
+              </button>
+            </div>
 
             <button class="teacher-btn" type="submit">Создать</button>
           </form>
@@ -1197,6 +1349,8 @@ $students = $pdo->query("
 
   </main>
 
+  <div class="toast-container" id="toastContainer"></div>
+
   <script>
     function toggleMobileMenu() {
       const menu = document.getElementById('mobileMenu');
@@ -1234,6 +1388,65 @@ $students = $pdo->query("
         button.classList.remove('is-open');
       }
     });
+
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toastContainer');
+
+      if (!container) {
+        return;
+      }
+
+      const toast = document.createElement('div');
+      toast.className = 'toast ' + (type === 'error' ? 'toast-error' : 'toast-success');
+      toast.textContent = message;
+
+      container.appendChild(toast);
+
+      setTimeout(function () {
+        toast.classList.add('is-hide');
+
+        setTimeout(function () {
+          toast.remove();
+        }, 300);
+      }, 3200);
+    }
+
+    function togglePasswordVisibility(inputId) {
+      const input = document.getElementById(inputId);
+
+      if (!input) {
+        return;
+      }
+
+      input.type = input.type === 'password' ? 'text' : 'password';
+    }
+
+    async function copyPasswordFromInput(inputId) {
+      const input = document.getElementById(inputId);
+
+      if (!input || !input.value) {
+        showToast('Пароль не найден.', 'error');
+        return;
+      }
+
+      try {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(input.value);
+        } else {
+          const originalType = input.type;
+          input.type = 'text';
+          input.focus();
+          input.select();
+          input.setSelectionRange(0, input.value.length);
+          document.execCommand('copy');
+          input.type = originalType;
+        }
+
+        showToast('Пароль скопирован.', 'success');
+      } catch (error) {
+        showToast('Не удалось скопировать пароль.', 'error');
+      }
+    }
   </script>
 </body>
 

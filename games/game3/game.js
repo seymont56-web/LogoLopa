@@ -18,6 +18,26 @@
     const NEXT_DELAY_MS = 700;
     const COUNTDOWN_STEP_MS = 780;
 
+    // Папка со звуками букв.
+    // Путь считается от index.html игры 3.
+    const LETTER_AUDIO_PATH = 'letter_audio/';
+
+    // Новые буквы НЕ добавлены.
+    // Здесь только звуки для букв, которые уже есть в LETTERS.
+    const LETTER_AUDIO_FILES = {
+        'А': 'a.mp3',
+        'Б': 'b.mp3',
+        'У': 'u.mp3',
+        'Т': 't.mp3',
+        'О': 'o.mp3',
+        'К': 'k.mp3',
+        'Д': 'd.mp3',
+        'И': 'i.mp3',
+        'Ы': 'y.mp3',
+        'Г': 'g.mp3',
+        'Л': 'l.mp3'
+    };
+
     const els = {
         startScreen: document.getElementById('startScreen'),
         novelScreen: document.getElementById('novelScreen'),
@@ -53,6 +73,7 @@
     const state = {
         index: 0,
         currentLetter: '',
+        lastLetter: '',
         roundActive: false,
         finished: false,
         introStarted: false,
@@ -70,6 +91,8 @@
         novelFrameIndex: 1,
         availableNovelFrames: [],
         activeAudio: null,
+
+        activeLetterAudio: null,
 
         lastSuccessImageIndex: 0
     };
@@ -228,6 +251,16 @@
         ];
     }
 
+    function getLetterAudioSrc(letter) {
+        const fileName = LETTER_AUDIO_FILES[letter];
+
+        if (!fileName) {
+            return '';
+        }
+
+        return `${LETTER_AUDIO_PATH}${fileName}`;
+    }
+
     function preloadImage(src) {
         return new Promise(function (resolve) {
             const img = new Image();
@@ -287,6 +320,20 @@
         });
     }
 
+    function preloadLetterAudio() {
+        const tasks = [];
+
+        Object.keys(LETTER_AUDIO_FILES).forEach(function (letter) {
+            const src = getLetterAudioSrc(letter);
+
+            if (src) {
+                tasks.push(preloadAudio(src));
+            }
+        });
+
+        return Promise.allSettled(tasks);
+    }
+
     async function preloadGameAssets() {
         state.availableNovelFrames = await detectNovelFrames();
 
@@ -306,6 +353,8 @@
         }
 
         await Promise.allSettled(tasks);
+
+        await preloadLetterAudio();
     }
 
     function notifyParentGameReady() {
@@ -353,6 +402,45 @@
         state.activeAudio = null;
     }
 
+    function playLetterAudio(letter) {
+        stopLetterAudio();
+
+        const src = getLetterAudioSrc(letter);
+
+        if (!src) {
+            return;
+        }
+
+        try {
+            const audio = new Audio(src);
+
+            state.activeLetterAudio = audio;
+
+            audio.volume = 1;
+
+            audio.addEventListener('ended', function () {
+                if (state.activeLetterAudio === audio) {
+                    state.activeLetterAudio = null;
+                }
+            }, { once: true });
+
+            audio.play().catch(function () { });
+        } catch (err) { }
+    }
+
+    function stopLetterAudio() {
+        if (!state.activeLetterAudio) {
+            return;
+        }
+
+        try {
+            state.activeLetterAudio.pause();
+            state.activeLetterAudio.currentTime = 0;
+        } catch (err) { }
+
+        state.activeLetterAudio = null;
+    }
+
     function nextNovelFrame() {
         if (!state.availableNovelFrames.length) {
             startGame();
@@ -372,6 +460,7 @@
 
     function startGame() {
         stopFrameAudio();
+        stopLetterAudio();
         clearTimers();
 
         state.index = 0;
@@ -471,10 +560,24 @@
             els.countdownNumber.classList.remove('is-pop');
         }
     }
+    function getRandomLetter() {
+        let randomLetter = LETTERS[Math.floor(Math.random() * LETTERS.length)];
+
+        if (LETTERS.length > 1) {
+            while (randomLetter === state.lastLetter) {
+                randomLetter = LETTERS[Math.floor(Math.random() * LETTERS.length)];
+            }
+        }
+
+        state.lastLetter = randomLetter;
+
+        return randomLetter;
+    }
 
     function startRound() {
         clearTimers();
         resetRoundTimerSlider();
+        stopLetterAudio();
 
         if (state.finished) {
             return;
@@ -490,12 +593,16 @@
 
         const token = state.roundToken;
 
-        state.currentLetter = LETTERS[state.index];
+        state.currentLetter = getRandomLetter();
 
         if (els.letterDisplay) {
             els.letterDisplay.textContent = state.currentLetter;
             els.letterDisplay.classList.remove('is-good', 'is-bad');
         }
+
+        // Главная правка:
+        // когда буква показана на экране, сразу проигрываем её звук.
+        playLetterAudio(state.currentLetter);
 
         clearFeedback();
 
@@ -679,6 +786,7 @@
         hideCountdown();
         resetRoundTimerSlider();
         stopFrameAudio();
+        stopLetterAudio();
 
         state.roundActive = false;
         state.finished = true;
@@ -697,6 +805,7 @@
         clearTimers();
         resetRoundTimerSlider();
         hideCountdown();
+        stopLetterAudio();
 
         state.finished = true;
         state.roundActive = false;
