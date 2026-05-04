@@ -1122,7 +1122,7 @@ $students = $pdo->query("
           <h2>Создать ученика</h2>
 
           <p class="teacher-card-text">
-            Ученик может поменять пароль в профиле.
+            Ученик может поменять пароль в&nbsp;профиле.
           </p>
 
           <form class="teacher-form" method="post">

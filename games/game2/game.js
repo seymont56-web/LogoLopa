@@ -623,6 +623,13 @@
         }
 
         state.filled[emptyIndex] = tile.dataset.letter;
+
+        /*
+            Важно:
+            букву не удаляем из DOM и не создаём заново.
+            Просто скрываем её на своём месте в списке.
+            Поэтому при возврате она появится там же, а не в конце.
+        */
         tile.classList.add('is-hidden');
 
         renderSlots();
@@ -634,10 +641,40 @@
             return;
         }
 
-        addTileToPool(state.filled[index]);
+        const letter = state.filled[index];
+
+        restoreTileToPool(letter);
         state.filled[index] = null;
 
         renderSlots();
+    }
+
+    function restoreTileToPool(letter) {
+        const hiddenTile = findHiddenPoolTile(letter);
+
+        if (hiddenTile) {
+            hiddenTile.classList.remove('is-hidden', 'is-dragging');
+            return;
+        }
+
+        /*
+            Запасной вариант на случай, если буквы почему-то нет в DOM.
+            Обычно сюда код не должен попадать.
+        */
+        addTileToPool(letter);
+    }
+
+    function findHiddenPoolTile(letter) {
+        if (!els.pool) {
+            return null;
+        }
+
+        const normalizedLetter = toUpper(letter);
+        const hiddenTiles = Array.from(els.pool.querySelectorAll('.tile.is-hidden'));
+
+        return hiddenTiles.find(function (tile) {
+            return toUpper(tile.dataset.letter) === normalizedLetter;
+        }) || null;
     }
 
     function startTileDrag(event) {
@@ -834,6 +871,10 @@
 
         state.filled[targetIndex] = state.drag.letter;
 
+        /*
+            Если букву взяли из нижнего списка — скрываем её,
+            но не удаляем. Так она сохраняет своё место.
+        */
         if (state.drag.type === 'tile' && state.drag.source) {
             state.drag.source.classList.add('is-hidden');
         }
