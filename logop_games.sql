@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Хост: 127.0.0.1:3307
--- Время создания: Май 05 2026 г., 05:09
+-- Время создания: Май 05 2026 г., 19:24
 -- Версия сервера: 10.4.32-MariaDB
 -- Версия PHP: 8.2.12
 
@@ -39,11 +39,11 @@ CREATE TABLE `games` (
 --
 
 INSERT INTO `games` (`id`, `code`, `title`, `path`) VALUES
-(1, 'game1', 'Лопа и пропавшие гласные', '/Веб-сервис/games/game1/index.html'),
-(2, 'game2', 'Лопа и загадочные карточки', '/Веб-сервис/games/game2/index.html'),
-(3, 'game3', 'Поймай гласный звук', '/Веб-сервис/games/game3/index.html'),
-(4, 'game4', 'Волшебные жетоны', '/Веб-сервис/games/game4/index.html'),
-(5, 'game5', 'Лопа сортирует звуки', '/Веб-сервис/games/game5/index.html');
+(1, 'game1', 'Лопа и пропавшие гласные', '/LogoLopa/games/game1/index.html'),
+(2, 'game2', 'Лопа и загадочные карточки', '/LogoLopa/games/game2/index.html'),
+(3, 'game3', 'Поймай гласный звук', '/LogoLopa/games/game3/index.html'),
+(4, 'game4', 'Волшебные жетоны', '/LogoLopa/games/game4/index.html'),
+(5, 'game5', 'Лопа сортирует звуки', '/LogoLopa/games/game5/index.html');
 
 -- --------------------------------------------------------
 
@@ -61,36 +61,6 @@ CREATE TABLE `game_result` (
   `completed_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Дамп данных таблицы `game_result`
---
-
-INSERT INTO `game_result` (`id`, `student_id`, `game_id`, `correct_answers`, `incorrect_answers`, `time_spent`, `completed_at`) VALUES
-(1, 16, 5, 10, 1, 21, '2026-05-01 18:02:21'),
-(2, 16, 5, 10, 0, 46, '2026-05-01 18:03:09'),
-(3, 17, 1, 5, 0, 33, '2026-05-02 18:05:23'),
-(4, 17, 2, 6, 0, 51, '2026-05-02 18:06:19'),
-(5, 16, 4, 5, 0, 9, '2026-05-03 04:49:04'),
-(6, 16, 4, 5, 0, 8, '2026-05-03 04:49:14'),
-(7, 16, 2, 6, 0, 75, '2026-05-03 05:17:39'),
-(8, 16, 5, 10, 0, 31, '2026-05-03 05:20:15'),
-(9, 16, 4, 5, 0, 17, '2026-05-03 05:20:59'),
-(10, 16, 5, 10, 2, 104, '2026-05-03 13:17:37'),
-(11, 16, 2, 6, 0, 37, '2026-05-04 06:34:54'),
-(12, 16, 2, 6, 0, 29, '2026-05-04 06:35:25'),
-(13, 16, 1, 6, 0, 24, '2026-05-04 07:03:28'),
-(14, 16, 2, 6, 0, 57, '2026-05-04 07:44:25'),
-(15, 32, 1, 6, 1, 27, '2026-05-04 11:59:03'),
-(16, 32, 2, 6, 0, 37, '2026-05-04 11:59:50'),
-(17, 32, 3, 9, 3, 28, '2026-05-04 12:00:31'),
-(18, 32, 4, 5, 0, 8, '2026-05-04 12:01:36'),
-(19, 32, 5, 10, 0, 17, '2026-05-04 12:02:01'),
-(20, 16, 4, 5, 0, 7, '2026-05-04 12:41:57'),
-(21, 16, 4, 5, 0, 9, '2026-05-04 12:42:07'),
-(22, 16, 3, 12, 0, 36, '2026-05-04 14:40:49'),
-(23, 33, 1, 6, 0, 25, '2026-05-04 14:48:19'),
-(24, 33, 3, 12, 0, 37, '2026-05-04 14:49:17');
-
 -- --------------------------------------------------------
 
 --
@@ -102,62 +72,6 @@ CREATE TABLE `student_game_access` (
   `game_id` int(11) NOT NULL,
   `is_enabled` tinyint(1) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Дамп данных таблицы `student_game_access`
---
-
-INSERT INTO `student_game_access` (`student_id`, `game_id`, `is_enabled`) VALUES
-(16, 1, 1),
-(16, 2, 1),
-(16, 3, 1),
-(16, 4, 1),
-(16, 5, 1),
-(17, 1, 1),
-(17, 2, 1),
-(17, 3, 1),
-(17, 4, 1),
-(17, 5, 1),
-(18, 1, 0),
-(18, 2, 0),
-(18, 3, 0),
-(18, 4, 0),
-(18, 5, 0),
-(20, 1, 0),
-(20, 2, 0),
-(20, 3, 0),
-(20, 4, 0),
-(20, 5, 0),
-(21, 1, 0),
-(21, 2, 0),
-(21, 3, 0),
-(21, 4, 0),
-(21, 5, 0),
-(25, 1, 0),
-(25, 2, 0),
-(25, 3, 0),
-(25, 4, 0),
-(25, 5, 0),
-(28, 1, 0),
-(28, 2, 0),
-(28, 3, 0),
-(28, 4, 0),
-(28, 5, 0),
-(31, 1, 0),
-(31, 2, 0),
-(31, 3, 0),
-(31, 4, 0),
-(31, 5, 0),
-(32, 1, 1),
-(32, 2, 1),
-(32, 3, 1),
-(32, 4, 1),
-(32, 5, 1),
-(33, 1, 1),
-(33, 2, 1),
-(33, 3, 1),
-(33, 4, 1),
-(33, 5, 1);
 
 -- --------------------------------------------------------
 
@@ -180,17 +94,7 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `role`, `login`, `pass_hash`, `display_name`, `created_at`, `must_change_pass`) VALUES
-(1, 'teacher', 'teacher', '$2y$10$wR.TEXmrEL1ooEFH5RhtqeH8hj/YEYkFBjpzcUN90iA/eTCCfrdya', 'Учитель', '2026-01-06 16:33:01', 0),
-(16, 'student', 'user', '$2y$10$mf6gpRbLSXlcXWR1TXcz/.331FReqtCAT1L2aNT6gz6weTMKrdaHS', 'user', '2026-05-01 17:49:32', 1),
-(17, 'student', 'aaa', '$2y$10$2ZJdFMWOgGnbtV4mVefipeu07LPjJ/8g9imx4pAc0ttV32cp1etJy', 'aaa', '2026-05-02 18:02:48', 1),
-(18, 'student', '1', '$2y$10$CF0d7QTp6k3WzZqiG.Ctce5jQlys1XdaXlXqeUCv5NRPDh4ayd.TK', '1', '2026-05-03 02:43:38', 1),
-(20, 'student', '333', '$2y$10$Ek2OsPASaosTd0mRm1x81e38zu6xB4O2pOtoOJ8qFtJB2nge9.siO', '233', '2026-05-03 02:43:48', 1),
-(21, 'student', '41242143', '$2y$10$FZBBJRR3B39c1SlPNeT4tOfQatbjg40W3ZawNidhqoWwYmwpUAOia', '123124', '2026-05-03 02:43:52', 1),
-(25, 'student', 'ant', '$2y$10$yFM1YPx2.tWncMzKNz59GeM4QUEZGrdAdHYNqmUxcwO.U2W5Xj6i2', 'Антон', '2026-05-04 09:28:14', 1),
-(28, 'student', 'anto1', '$2y$10$jRPqi1cfOm73.VGe4VRhYOdJwgmy7YrbxDtxX1MbIAWpEWPBsVWqS', 'anton', '2026-05-04 09:29:01', 1),
-(31, 'student', '444', '$2y$10$WvqPbeaox8gR.bRULIVEBOumKfnYAL/MMa8vsWjUHOd7NFSloFg3.', '13', '2026-05-04 09:39:37', 1),
-(32, 'student', 'Ulitin1', '$2y$10$izqKyTnRn1XokI4ikxUZOeTr.Jt6.evwi9hikR4.UY/il8z0GZJ7K', 'Улитин', '2026-05-04 11:57:33', 0),
-(33, 'student', 'Anton2', '$2y$10$b.ygqiMXA6n8bjA.47t11e8oiPDY3xkoD4TjKX0nZ9ZGp.d2f0SgC', 'Антон Егоров', '2026-05-04 14:47:06', 0);
+(1, 'teacher', 'teacher', '$2y$10$wR.TEXmrEL1ooEFH5RhtqeH8hj/YEYkFBjpzcUN90iA/eTCCfrdya', 'Учитель', '2026-01-06 16:33:01', 0);
 
 --
 -- Индексы сохранённых таблиц
@@ -239,13 +143,13 @@ ALTER TABLE `games`
 -- AUTO_INCREMENT для таблицы `game_result`
 --
 ALTER TABLE `game_result`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
 
 --
 -- AUTO_INCREMENT для таблицы `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=35;
 
 --
 -- Ограничения внешнего ключа сохраненных таблиц
