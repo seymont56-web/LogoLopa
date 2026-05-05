@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Хост: 127.0.0.1:3307
--- Время создания: Май 03 2026 г., 15:25
+-- Время создания: Май 05 2026 г., 05:09
 -- Версия сервера: 10.4.32-MariaDB
 -- Версия PHP: 8.2.12
 
@@ -75,7 +75,21 @@ INSERT INTO `game_result` (`id`, `student_id`, `game_id`, `correct_answers`, `in
 (7, 16, 2, 6, 0, 75, '2026-05-03 05:17:39'),
 (8, 16, 5, 10, 0, 31, '2026-05-03 05:20:15'),
 (9, 16, 4, 5, 0, 17, '2026-05-03 05:20:59'),
-(10, 16, 5, 10, 2, 104, '2026-05-03 13:17:37');
+(10, 16, 5, 10, 2, 104, '2026-05-03 13:17:37'),
+(11, 16, 2, 6, 0, 37, '2026-05-04 06:34:54'),
+(12, 16, 2, 6, 0, 29, '2026-05-04 06:35:25'),
+(13, 16, 1, 6, 0, 24, '2026-05-04 07:03:28'),
+(14, 16, 2, 6, 0, 57, '2026-05-04 07:44:25'),
+(15, 32, 1, 6, 1, 27, '2026-05-04 11:59:03'),
+(16, 32, 2, 6, 0, 37, '2026-05-04 11:59:50'),
+(17, 32, 3, 9, 3, 28, '2026-05-04 12:00:31'),
+(18, 32, 4, 5, 0, 8, '2026-05-04 12:01:36'),
+(19, 32, 5, 10, 0, 17, '2026-05-04 12:02:01'),
+(20, 16, 4, 5, 0, 7, '2026-05-04 12:41:57'),
+(21, 16, 4, 5, 0, 9, '2026-05-04 12:42:07'),
+(22, 16, 3, 12, 0, 36, '2026-05-04 14:40:49'),
+(23, 33, 1, 6, 0, 25, '2026-05-04 14:48:19'),
+(24, 33, 3, 12, 0, 37, '2026-05-04 14:49:17');
 
 -- --------------------------------------------------------
 
@@ -118,7 +132,32 @@ INSERT INTO `student_game_access` (`student_id`, `game_id`, `is_enabled`) VALUES
 (21, 2, 0),
 (21, 3, 0),
 (21, 4, 0),
-(21, 5, 0);
+(21, 5, 0),
+(25, 1, 0),
+(25, 2, 0),
+(25, 3, 0),
+(25, 4, 0),
+(25, 5, 0),
+(28, 1, 0),
+(28, 2, 0),
+(28, 3, 0),
+(28, 4, 0),
+(28, 5, 0),
+(31, 1, 0),
+(31, 2, 0),
+(31, 3, 0),
+(31, 4, 0),
+(31, 5, 0),
+(32, 1, 1),
+(32, 2, 1),
+(32, 3, 1),
+(32, 4, 1),
+(32, 5, 1),
+(33, 1, 1),
+(33, 2, 1),
+(33, 3, 1),
+(33, 4, 1),
+(33, 5, 1);
 
 -- --------------------------------------------------------
 
@@ -146,7 +185,12 @@ INSERT INTO `users` (`id`, `role`, `login`, `pass_hash`, `display_name`, `create
 (17, 'student', 'aaa', '$2y$10$2ZJdFMWOgGnbtV4mVefipeu07LPjJ/8g9imx4pAc0ttV32cp1etJy', 'aaa', '2026-05-02 18:02:48', 1),
 (18, 'student', '1', '$2y$10$CF0d7QTp6k3WzZqiG.Ctce5jQlys1XdaXlXqeUCv5NRPDh4ayd.TK', '1', '2026-05-03 02:43:38', 1),
 (20, 'student', '333', '$2y$10$Ek2OsPASaosTd0mRm1x81e38zu6xB4O2pOtoOJ8qFtJB2nge9.siO', '233', '2026-05-03 02:43:48', 1),
-(21, 'student', '41242143', '$2y$10$FZBBJRR3B39c1SlPNeT4tOfQatbjg40W3ZawNidhqoWwYmwpUAOia', '123124', '2026-05-03 02:43:52', 1);
+(21, 'student', '41242143', '$2y$10$FZBBJRR3B39c1SlPNeT4tOfQatbjg40W3ZawNidhqoWwYmwpUAOia', '123124', '2026-05-03 02:43:52', 1),
+(25, 'student', 'ant', '$2y$10$yFM1YPx2.tWncMzKNz59GeM4QUEZGrdAdHYNqmUxcwO.U2W5Xj6i2', 'Антон', '2026-05-04 09:28:14', 1),
+(28, 'student', 'anto1', '$2y$10$jRPqi1cfOm73.VGe4VRhYOdJwgmy7YrbxDtxX1MbIAWpEWPBsVWqS', 'anton', '2026-05-04 09:29:01', 1),
+(31, 'student', '444', '$2y$10$WvqPbeaox8gR.bRULIVEBOumKfnYAL/MMa8vsWjUHOd7NFSloFg3.', '13', '2026-05-04 09:39:37', 1),
+(32, 'student', 'Ulitin1', '$2y$10$izqKyTnRn1XokI4ikxUZOeTr.Jt6.evwi9hikR4.UY/il8z0GZJ7K', 'Улитин', '2026-05-04 11:57:33', 0),
+(33, 'student', 'Anton2', '$2y$10$b.ygqiMXA6n8bjA.47t11e8oiPDY3xkoD4TjKX0nZ9ZGp.d2f0SgC', 'Антон Егоров', '2026-05-04 14:47:06', 0);
 
 --
 -- Индексы сохранённых таблиц
@@ -195,13 +239,13 @@ ALTER TABLE `games`
 -- AUTO_INCREMENT для таблицы `game_result`
 --
 ALTER TABLE `game_result`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
 
 --
 -- AUTO_INCREMENT для таблицы `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
 
 --
 -- Ограничения внешнего ключа сохраненных таблиц
